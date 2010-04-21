@@ -1,0 +1,498 @@
+Terminals which are not used
+
+   T_COMMENT
+   T_WHITESPACE
+
+
+Grammar
+
+    0 $accept: start "end of file"
+
+    1 start: block_list
+
+    2 block_list: block
+    3           | block_list block
+
+    4 block_start: T_STRING T_LBRACKET identifier T_RBRACKET T_LBRACE
+    5            | T_STRING T_LBRACE
+
+    6 block: block_start inner_statement_list T_RBRACE
+
+    7 identifier: T_STRING
+    8           | identifier T_DOT T_STRING
+
+    9 inner_statement_list: inner_statement
+   10                     | inner_statement_list inner_statement
+
+   11 inner_statement: block
+   12                | function_statement
+   13                | variable_assignment
+   14                | define_statement
+
+   15 variable_assignment: identifier T_ASSIGN argument T_STMT_TERM
+
+   16 define_statement: identifier T_STMT_TERM
+
+   17 function_statement: identifier T_LPARAN argument_list T_RPARAN T_STMT_TERM
+
+   18 argument: scalar_val
+   19         | T_LPARAN argument_list T_RPARAN
+
+   20 argument_list: scalar_val
+   21              | argument_list T_COMMA scalar_val
+
+   22 scalar_val: T_LONG
+   23           | T_DOUBLE
+   24           | T_QUOTED_STRING
+   25           | identifier
+
+
+Terminals, with rules where they appear
+
+"end of file" (0) 0
+error (256)
+T_LPARAN (258) 17 19
+T_RPARAN (259) 17 19
+T_LBRACE (260) 4 5
+T_RBRACE (261) 6
+T_LBRACKET (262) 4
+T_RBRACKET (263) 4
+T_STRING (264) 4 5 7 8
+T_LONG (265) 22
+T_DOUBLE (266) 23
+T_COMMENT (267)
+T_WHITESPACE (268)
+T_QUOTED_STRING (269) 24
+T_DOT (270) 8
+T_STMT_TERM (271) 15 16 17
+T_ASSIGN (272) 15
+T_COMMA (273) 21
+
+
+Nonterminals, with rules where they appear
+
+$accept (19)
+    on left: 0
+start (20)
+    on left: 1, on right: 0
+block_list (21)
+    on left: 2 3, on right: 1 3
+block_start (22)
+    on left: 4 5, on right: 6
+block (23)
+    on left: 6, on right: 2 3 11
+identifier (24)
+    on left: 7 8, on right: 4 8 15 16 17 25
+inner_statement_list (25)
+    on left: 9 10, on right: 6 10
+inner_statement (26)
+    on left: 11 12 13 14, on right: 9 10
+variable_assignment (27)
+    on left: 15, on right: 13
+define_statement (28)
+    on left: 16, on right: 14
+function_statement (29)
+    on left: 17, on right: 12
+argument (30)
+    on left: 18 19, on right: 15
+argument_list (31)
+    on left: 20 21, on right: 17 19 21
+scalar_val (32)
+    on left: 22 23 24 25, on right: 18 20 21
+
+
+state 0
+
+    0 $accept: . start "end of file"
+
+    T_STRING  shift, and go to state 1
+
+    start        go to state 2
+    block_list   go to state 3
+    block_start  go to state 4
+    block        go to state 5
+
+
+state 1
+
+    4 block_start: T_STRING . T_LBRACKET identifier T_RBRACKET T_LBRACE
+    5            | T_STRING . T_LBRACE
+
+    T_LBRACE    shift, and go to state 6
+    T_LBRACKET  shift, and go to state 7
+
+
+state 2
+
+    0 $accept: start . "end of file"
+
+    "end of file"  shift, and go to state 8
+
+
+state 3
+
+    1 start: block_list .
+    3 block_list: block_list . block
+
+    T_STRING  shift, and go to state 1
+
+    $default  reduce using rule 1 (start)
+
+    block_start  go to state 4
+    block        go to state 9
+
+
+state 4
+
+    6 block: block_start . inner_statement_list T_RBRACE
+
+    T_STRING  shift, and go to state 10
+
+    block_start           go to state 4
+    block                 go to state 11
+    identifier            go to state 12
+    inner_statement_list  go to state 13
+    inner_statement       go to state 14
+    variable_assignment   go to state 15
+    define_statement      go to state 16
+    function_statement    go to state 17
+
+
+state 5
+
+    2 block_list: block .
+
+    $default  reduce using rule 2 (block_list)
+
+
+state 6
+
+    5 block_start: T_STRING T_LBRACE .
+
+    $default  reduce using rule 5 (block_start)
+
+
+state 7
+
+    4 block_start: T_STRING T_LBRACKET . identifier T_RBRACKET T_LBRACE
+
+    T_STRING  shift, and go to state 18
+
+    identifier  go to state 19
+
+
+state 8
+
+    0 $accept: start "end of file" .
+
+    $default  accept
+
+
+state 9
+
+    3 block_list: block_list block .
+
+    $default  reduce using rule 3 (block_list)
+
+
+state 10
+
+    4 block_start: T_STRING . T_LBRACKET identifier T_RBRACKET T_LBRACE
+    5            | T_STRING . T_LBRACE
+    7 identifier: T_STRING .
+
+    T_LBRACE    shift, and go to state 6
+    T_LBRACKET  shift, and go to state 7
+
+    $default  reduce using rule 7 (identifier)
+
+
+state 11
+
+   11 inner_statement: block .
+
+    $default  reduce using rule 11 (inner_statement)
+
+
+state 12
+
+    8 identifier: identifier . T_DOT T_STRING
+   15 variable_assignment: identifier . T_ASSIGN argument T_STMT_TERM
+   16 define_statement: identifier . T_STMT_TERM
+   17 function_statement: identifier . T_LPARAN argument_list T_RPARAN T_STMT_TERM
+
+    T_LPARAN     shift, and go to state 20
+    T_DOT        shift, and go to state 21
+    T_STMT_TERM  shift, and go to state 22
+    T_ASSIGN     shift, and go to state 23
+
+
+state 13
+
+    6 block: block_start inner_statement_list . T_RBRACE
+   10 inner_statement_list: inner_statement_list . inner_statement
+
+    T_RBRACE  shift, and go to state 24
+    T_STRING  shift, and go to state 10
+
+    block_start          go to state 4
+    block                go to state 11
+    identifier           go to state 12
+    inner_statement      go to state 25
+    variable_assignment  go to state 15
+    define_statement     go to state 16
+    function_statement   go to state 17
+
+
+state 14
+
+    9 inner_statement_list: inner_statement .
+
+    $default  reduce using rule 9 (inner_statement_list)
+
+
+state 15
+
+   13 inner_statement: variable_assignment .
+
+    $default  reduce using rule 13 (inner_statement)
+
+
+state 16
+
+   14 inner_statement: define_statement .
+
+    $default  reduce using rule 14 (inner_statement)
+
+
+state 17
+
+   12 inner_statement: function_statement .
+
+    $default  reduce using rule 12 (inner_statement)
+
+
+state 18
+
+    7 identifier: T_STRING .
+
+    $default  reduce using rule 7 (identifier)
+
+
+state 19
+
+    4 block_start: T_STRING T_LBRACKET identifier . T_RBRACKET T_LBRACE
+    8 identifier: identifier . T_DOT T_STRING
+
+    T_RBRACKET  shift, and go to state 26
+    T_DOT       shift, and go to state 21
+
+
+state 20
+
+   17 function_statement: identifier T_LPARAN . argument_list T_RPARAN T_STMT_TERM
+
+    T_STRING         shift, and go to state 18
+    T_LONG           shift, and go to state 27
+    T_DOUBLE         shift, and go to state 28
+    T_QUOTED_STRING  shift, and go to state 29
+
+    identifier     go to state 30
+    argument_list  go to state 31
+    scalar_val     go to state 32
+
+
+state 21
+
+    8 identifier: identifier T_DOT . T_STRING
+
+    T_STRING  shift, and go to state 33
+
+
+state 22
+
+   16 define_statement: identifier T_STMT_TERM .
+
+    $default  reduce using rule 16 (define_statement)
+
+
+state 23
+
+   15 variable_assignment: identifier T_ASSIGN . argument T_STMT_TERM
+
+    T_LPARAN         shift, and go to state 34
+    T_STRING         shift, and go to state 18
+    T_LONG           shift, and go to state 27
+    T_DOUBLE         shift, and go to state 28
+    T_QUOTED_STRING  shift, and go to state 29
+
+    identifier  go to state 30
+    argument    go to state 35
+    scalar_val  go to state 36
+
+
+state 24
+
+    6 block: block_start inner_statement_list T_RBRACE .
+
+    $default  reduce using rule 6 (block)
+
+
+state 25
+
+   10 inner_statement_list: inner_statement_list inner_statement .
+
+    $default  reduce using rule 10 (inner_statement_list)
+
+
+state 26
+
+    4 block_start: T_STRING T_LBRACKET identifier T_RBRACKET . T_LBRACE
+
+    T_LBRACE  shift, and go to state 37
+
+
+state 27
+
+   22 scalar_val: T_LONG .
+
+    $default  reduce using rule 22 (scalar_val)
+
+
+state 28
+
+   23 scalar_val: T_DOUBLE .
+
+    $default  reduce using rule 23 (scalar_val)
+
+
+state 29
+
+   24 scalar_val: T_QUOTED_STRING .
+
+    $default  reduce using rule 24 (scalar_val)
+
+
+state 30
+
+    8 identifier: identifier . T_DOT T_STRING
+   25 scalar_val: identifier .
+
+    T_DOT  shift, and go to state 21
+
+    $default  reduce using rule 25 (scalar_val)
+
+
+state 31
+
+   17 function_statement: identifier T_LPARAN argument_list . T_RPARAN T_STMT_TERM
+   21 argument_list: argument_list . T_COMMA scalar_val
+
+    T_RPARAN  shift, and go to state 38
+    T_COMMA   shift, and go to state 39
+
+
+state 32
+
+   20 argument_list: scalar_val .
+
+    $default  reduce using rule 20 (argument_list)
+
+
+state 33
+
+    8 identifier: identifier T_DOT T_STRING .
+
+    $default  reduce using rule 8 (identifier)
+
+
+state 34
+
+   19 argument: T_LPARAN . argument_list T_RPARAN
+
+    T_STRING         shift, and go to state 18
+    T_LONG           shift, and go to state 27
+    T_DOUBLE         shift, and go to state 28
+    T_QUOTED_STRING  shift, and go to state 29
+
+    identifier     go to state 30
+    argument_list  go to state 40
+    scalar_val     go to state 32
+
+
+state 35
+
+   15 variable_assignment: identifier T_ASSIGN argument . T_STMT_TERM
+
+    T_STMT_TERM  shift, and go to state 41
+
+
+state 36
+
+   18 argument: scalar_val .
+
+    $default  reduce using rule 18 (argument)
+
+
+state 37
+
+    4 block_start: T_STRING T_LBRACKET identifier T_RBRACKET T_LBRACE .
+
+    $default  reduce using rule 4 (block_start)
+
+
+state 38
+
+   17 function_statement: identifier T_LPARAN argument_list T_RPARAN . T_STMT_TERM
+
+    T_STMT_TERM  shift, and go to state 42
+
+
+state 39
+
+   21 argument_list: argument_list T_COMMA . scalar_val
+
+    T_STRING         shift, and go to state 18
+    T_LONG           shift, and go to state 27
+    T_DOUBLE         shift, and go to state 28
+    T_QUOTED_STRING  shift, and go to state 29
+
+    identifier  go to state 30
+    scalar_val  go to state 43
+
+
+state 40
+
+   19 argument: T_LPARAN argument_list . T_RPARAN
+   21 argument_list: argument_list . T_COMMA scalar_val
+
+    T_RPARAN  shift, and go to state 44
+    T_COMMA   shift, and go to state 39
+
+
+state 41
+
+   15 variable_assignment: identifier T_ASSIGN argument T_STMT_TERM .
+
+    $default  reduce using rule 15 (variable_assignment)
+
+
+state 42
+
+   17 function_statement: identifier T_LPARAN argument_list T_RPARAN T_STMT_TERM .
+
+    $default  reduce using rule 17 (function_statement)
+
+
+state 43
+
+   21 argument_list: argument_list T_COMMA scalar_val .
+
+    $default  reduce using rule 21 (argument_list)
+
+
+state 44
+
+   19 argument: T_LPARAN argument_list T_RPARAN .
+
+    $default  reduce using rule 19 (argument)

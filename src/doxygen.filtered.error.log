@@ -1,0 +1,6 @@
+Warning: The selected output language "norwegian" has not been updated
+since release 1.4.6.  As a result some sentences may appear in English.
+
+/home/bear/src/dispatch/src/config/config_l.h:181: Warning: Compound yy_buffer_state is not documented.
+<unknown>:-1: Warning: Found unknown command `\r'
+<unknown>:-1: Warning: Found unknown command `\r'

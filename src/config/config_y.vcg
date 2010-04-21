@@ -1,0 +1,721 @@
+graph: {
+	display_edge_labels:	yes
+	priority_phase:	yes
+	port_sharing:	no
+	crossing_weight:	median
+	splines:	yes
+	node: {
+		title:	"0"
+		label:	"state  0\n $accept -> . start \"end of file\""
+	}
+	edge: {
+		sourcename:	"0"
+		targetname:	"1"
+		label:	"T_STRING"
+		color:	blue
+		textcolor:	black
+	}
+	edge: {
+		sourcename:	"0"
+		targetname:	"2"
+		label:	"start"
+		color:	green
+		textcolor:	black
+	}
+	edge: {
+		sourcename:	"0"
+		targetname:	"3"
+		label:	"block_list"
+		color:	green
+		textcolor:	black
+	}
+	edge: {
+		sourcename:	"0"
+		targetname:	"4"
+		label:	"block_start"
+		color:	green
+		textcolor:	black
+	}
+	edge: {
+		sourcename:	"0"
+		targetname:	"5"
+		label:	"block"
+		color:	green
+		textcolor:	black
+	}
+	node: {
+		title:	"1"
+		label:	"state  1\n block_start -> T_STRING . T_LBRACKET identifier T_RBRACKET T_LBRACE\n block_start -> T_STRING . T_LBRACE"
+	}
+	edge: {
+		sourcename:	"1"
+		targetname:	"6"
+		label:	"T_LBRACE"
+		color:	blue
+		textcolor:	black
+	}
+	edge: {
+		sourcename:	"1"
+		targetname:	"7"
+		label:	"T_LBRACKET"
+		color:	blue
+		textcolor:	black
+	}
+	node: {
+		title:	"2"
+		label:	"state  2\n $accept -> start . \"end of file\""
+	}
+	edge: {
+		sourcename:	"2"
+		targetname:	"8"
+		label:	"\"end of file\""
+		color:	blue
+		textcolor:	black
+	}
+	node: {
+		title:	"3"
+		label:	"state  3\n start -> block_list .\n block_list -> block_list . block"
+	}
+	backedge: {
+		sourcename:	"3"
+		targetname:	"1"
+		label:	"T_STRING"
+		color:	blue
+		textcolor:	black
+	}
+	edge: {
+		sourcename:	"3"
+		targetname:	"4"
+		label:	"block_start"
+		color:	green
+		textcolor:	black
+	}
+	edge: {
+		sourcename:	"3"
+		targetname:	"9"
+		label:	"block"
+		color:	green
+		textcolor:	black
+	}
+	node: {
+		title:	"4"
+		label:	"state  4\n block -> block_start . inner_statement_list T_RBRACE"
+	}
+	edge: {
+		sourcename:	"4"
+		targetname:	"10"
+		label:	"T_STRING"
+		color:	blue
+		textcolor:	black
+	}
+	edge: {
+		sourcename:	"4"
+		targetname:	"4"
+		label:	"block_start"
+		color:	green
+		textcolor:	black
+	}
+	edge: {
+		sourcename:	"4"
+		targetname:	"11"
+		label:	"block"
+		color:	green
+		textcolor:	black
+	}
+	edge: {
+		sourcename:	"4"
+		targetname:	"12"
+		label:	"identifier"
+		color:	green
+		textcolor:	black
+	}
+	edge: {
+		sourcename:	"4"
+		targetname:	"13"
+		label:	"inner_statement_list"
+		color:	green
+		textcolor:	black
+	}
+	edge: {
+		sourcename:	"4"
+		targetname:	"14"
+		label:	"inner_statement"
+		color:	green
+		textcolor:	black
+	}
+	edge: {
+		sourcename:	"4"
+		targetname:	"15"
+		label:	"variable_assignment"
+		color:	green
+		textcolor:	black
+	}
+	edge: {
+		sourcename:	"4"
+		targetname:	"16"
+		label:	"define_statement"
+		color:	green
+		textcolor:	black
+	}
+	edge: {
+		sourcename:	"4"
+		targetname:	"17"
+		label:	"function_statement"
+		color:	green
+		textcolor:	black
+	}
+	node: {
+		title:	"5"
+		label:	"state  5\n block_list -> block ."
+	}
+	node: {
+		title:	"6"
+		label:	"state  6\n block_start -> T_STRING T_LBRACE ."
+	}
+	node: {
+		title:	"7"
+		label:	"state  7\n block_start -> T_STRING T_LBRACKET . identifier T_RBRACKET T_LBRACE"
+	}
+	edge: {
+		sourcename:	"7"
+		targetname:	"18"
+		label:	"T_STRING"
+		color:	blue
+		textcolor:	black
+	}
+	edge: {
+		sourcename:	"7"
+		targetname:	"19"
+		label:	"identifier"
+		color:	green
+		textcolor:	black
+	}
+	node: {
+		title:	"8"
+		label:	"state  8\n $accept -> start \"end of file\" ."
+	}
+	node: {
+		title:	"9"
+		label:	"state  9\n block_list -> block_list block ."
+	}
+	node: {
+		title:	"10"
+		label:	"state 10\n block_start -> T_STRING . T_LBRACKET identifier T_RBRACKET T_LBRACE\n block_start -> T_STRING . T_LBRACE\n identifier -> T_STRING ."
+	}
+	backedge: {
+		sourcename:	"10"
+		targetname:	"6"
+		label:	"T_LBRACE"
+		color:	blue
+		textcolor:	black
+	}
+	backedge: {
+		sourcename:	"10"
+		targetname:	"7"
+		label:	"T_LBRACKET"
+		color:	blue
+		textcolor:	black
+	}
+	node: {
+		title:	"11"
+		label:	"state 11\n inner_statement -> block ."
+	}
+	node: {
+		title:	"12"
+		label:	"state 12\n identifier -> identifier . T_DOT T_STRING\n variable_assignment -> identifier . T_ASSIGN argument T_STMT_TERM\n define_statement -> identifier . T_STMT_TERM\n function_statement -> identifier . T_LPARAN argument_list T_RPARAN T_STMT_TERM"
+	}
+	edge: {
+		sourcename:	"12"
+		targetname:	"20"
+		label:	"T_LPARAN"
+		color:	blue
+		textcolor:	black
+	}
+	edge: {
+		sourcename:	"12"
+		targetname:	"21"
+		label:	"T_DOT"
+		color:	blue
+		textcolor:	black
+	}
+	edge: {
+		sourcename:	"12"
+		targetname:	"22"
+		label:	"T_STMT_TERM"
+		color:	blue
+		textcolor:	black
+	}
+	edge: {
+		sourcename:	"12"
+		targetname:	"23"
+		label:	"T_ASSIGN"
+		color:	blue
+		textcolor:	black
+	}
+	node: {
+		title:	"13"
+		label:	"state 13\n block -> block_start inner_statement_list . T_RBRACE\n inner_statement_list -> inner_statement_list . inner_statement"
+	}
+	edge: {
+		sourcename:	"13"
+		targetname:	"24"
+		label:	"T_RBRACE"
+		color:	blue
+		textcolor:	black
+	}
+	backedge: {
+		sourcename:	"13"
+		targetname:	"10"
+		label:	"T_STRING"
+		color:	blue
+		textcolor:	black
+	}
+	backedge: {
+		sourcename:	"13"
+		targetname:	"4"
+		label:	"block_start"
+		color:	green
+		textcolor:	black
+	}
+	backedge: {
+		sourcename:	"13"
+		targetname:	"11"
+		label:	"block"
+		color:	green
+		textcolor:	black
+	}
+	backedge: {
+		sourcename:	"13"
+		targetname:	"12"
+		label:	"identifier"
+		color:	green
+		textcolor:	black
+	}
+	edge: {
+		sourcename:	"13"
+		targetname:	"25"
+		label:	"inner_statement"
+		color:	green
+		textcolor:	black
+	}
+	edge: {
+		sourcename:	"13"
+		targetname:	"15"
+		label:	"variable_assignment"
+		color:	green
+		textcolor:	black
+	}
+	edge: {
+		sourcename:	"13"
+		targetname:	"16"
+		label:	"define_statement"
+		color:	green
+		textcolor:	black
+	}
+	edge: {
+		sourcename:	"13"
+		targetname:	"17"
+		label:	"function_statement"
+		color:	green
+		textcolor:	black
+	}
+	node: {
+		title:	"14"
+		label:	"state 14\n inner_statement_list -> inner_statement ."
+	}
+	node: {
+		title:	"15"
+		label:	"state 15\n inner_statement -> variable_assignment ."
+	}
+	node: {
+		title:	"16"
+		label:	"state 16\n inner_statement -> define_statement ."
+	}
+	node: {
+		title:	"17"
+		label:	"state 17\n inner_statement -> function_statement ."
+	}
+	node: {
+		title:	"18"
+		label:	"state 18\n identifier -> T_STRING ."
+	}
+	node: {
+		title:	"19"
+		label:	"state 19\n block_start -> T_STRING T_LBRACKET identifier . T_RBRACKET T_LBRACE\n identifier -> identifier . T_DOT T_STRING"
+	}
+	edge: {
+		sourcename:	"19"
+		targetname:	"26"
+		label:	"T_RBRACKET"
+		color:	blue
+		textcolor:	black
+	}
+	edge: {
+		sourcename:	"19"
+		targetname:	"21"
+		label:	"T_DOT"
+		color:	blue
+		textcolor:	black
+	}
+	node: {
+		title:	"20"
+		label:	"state 20\n function_statement -> identifier T_LPARAN . argument_list T_RPARAN T_STMT_TERM"
+	}
+	backedge: {
+		sourcename:	"20"
+		targetname:	"18"
+		label:	"T_STRING"
+		color:	blue
+		textcolor:	black
+	}
+	edge: {
+		sourcename:	"20"
+		targetname:	"27"
+		label:	"T_LONG"
+		color:	blue
+		textcolor:	black
+	}
+	edge: {
+		sourcename:	"20"
+		targetname:	"28"
+		label:	"T_DOUBLE"
+		color:	blue
+		textcolor:	black
+	}
+	edge: {
+		sourcename:	"20"
+		targetname:	"29"
+		label:	"T_QUOTED_STRING"
+		color:	blue
+		textcolor:	black
+	}
+	edge: {
+		sourcename:	"20"
+		targetname:	"30"
+		label:	"identifier"
+		color:	green
+		textcolor:	black
+	}
+	edge: {
+		sourcename:	"20"
+		targetname:	"31"
+		label:	"argument_list"
+		color:	green
+		textcolor:	black
+	}
+	edge: {
+		sourcename:	"20"
+		targetname:	"32"
+		label:	"scalar_val"
+		color:	green
+		textcolor:	black
+	}
+	node: {
+		title:	"21"
+		label:	"state 21\n identifier -> identifier T_DOT . T_STRING"
+	}
+	edge: {
+		sourcename:	"21"
+		targetname:	"33"
+		label:	"T_STRING"
+		color:	blue
+		textcolor:	black
+	}
+	node: {
+		title:	"22"
+		label:	"state 22\n define_statement -> identifier T_STMT_TERM ."
+	}
+	node: {
+		title:	"23"
+		label:	"state 23\n variable_assignment -> identifier T_ASSIGN . argument T_STMT_TERM"
+	}
+	edge: {
+		sourcename:	"23"
+		targetname:	"34"
+		label:	"T_LPARAN"
+		color:	blue
+		textcolor:	black
+	}
+	backedge: {
+		sourcename:	"23"
+		targetname:	"18"
+		label:	"T_STRING"
+		color:	blue
+		textcolor:	black
+	}
+	edge: {
+		sourcename:	"23"
+		targetname:	"27"
+		label:	"T_LONG"
+		color:	blue
+		textcolor:	black
+	}
+	edge: {
+		sourcename:	"23"
+		targetname:	"28"
+		label:	"T_DOUBLE"
+		color:	blue
+		textcolor:	black
+	}
+	edge: {
+		sourcename:	"23"
+		targetname:	"29"
+		label:	"T_QUOTED_STRING"
+		color:	blue
+		textcolor:	black
+	}
+	edge: {
+		sourcename:	"23"
+		targetname:	"30"
+		label:	"identifier"
+		color:	green
+		textcolor:	black
+	}
+	edge: {
+		sourcename:	"23"
+		targetname:	"35"
+		label:	"argument"
+		color:	green
+		textcolor:	black
+	}
+	edge: {
+		sourcename:	"23"
+		targetname:	"36"
+		label:	"scalar_val"
+		color:	green
+		textcolor:	black
+	}
+	node: {
+		title:	"24"
+		label:	"state 24\n block -> block_start inner_statement_list T_RBRACE ."
+	}
+	node: {
+		title:	"25"
+		label:	"state 25\n inner_statement_list -> inner_statement_list inner_statement ."
+	}
+	node: {
+		title:	"26"
+		label:	"state 26\n block_start -> T_STRING T_LBRACKET identifier T_RBRACKET . T_LBRACE"
+	}
+	edge: {
+		sourcename:	"26"
+		targetname:	"37"
+		label:	"T_LBRACE"
+		color:	blue
+		textcolor:	black
+	}
+	node: {
+		title:	"27"
+		label:	"state 27\n scalar_val -> T_LONG ."
+	}
+	node: {
+		title:	"28"
+		label:	"state 28\n scalar_val -> T_DOUBLE ."
+	}
+	node: {
+		title:	"29"
+		label:	"state 29\n scalar_val -> T_QUOTED_STRING ."
+	}
+	node: {
+		title:	"30"
+		label:	"state 30\n identifier -> identifier . T_DOT T_STRING\n scalar_val -> identifier ."
+	}
+	backedge: {
+		sourcename:	"30"
+		targetname:	"21"
+		label:	"T_DOT"
+		color:	blue
+		textcolor:	black
+	}
+	node: {
+		title:	"31"
+		label:	"state 31\n function_statement -> identifier T_LPARAN argument_list . T_RPARAN T_STMT_TERM\n argument_list -> argument_list . T_COMMA scalar_val"
+	}
+	edge: {
+		sourcename:	"31"
+		targetname:	"38"
+		label:	"T_RPARAN"
+		color:	blue
+		textcolor:	black
+	}
+	edge: {
+		sourcename:	"31"
+		targetname:	"39"
+		label:	"T_COMMA"
+		color:	blue
+		textcolor:	black
+	}
+	node: {
+		title:	"32"
+		label:	"state 32\n argument_list -> scalar_val ."
+	}
+	node: {
+		title:	"33"
+		label:	"state 33\n identifier -> identifier T_DOT T_STRING ."
+	}
+	node: {
+		title:	"34"
+		label:	"state 34\n argument -> T_LPARAN . argument_list T_RPARAN"
+	}
+	backedge: {
+		sourcename:	"34"
+		targetname:	"18"
+		label:	"T_STRING"
+		color:	blue
+		textcolor:	black
+	}
+	backedge: {
+		sourcename:	"34"
+		targetname:	"27"
+		label:	"T_LONG"
+		color:	blue
+		textcolor:	black
+	}
+	backedge: {
+		sourcename:	"34"
+		targetname:	"28"
+		label:	"T_DOUBLE"
+		color:	blue
+		textcolor:	black
+	}
+	backedge: {
+		sourcename:	"34"
+		targetname:	"29"
+		label:	"T_QUOTED_STRING"
+		color:	blue
+		textcolor:	black
+	}
+	backedge: {
+		sourcename:	"34"
+		targetname:	"30"
+		label:	"identifier"
+		color:	green
+		textcolor:	black
+	}
+	edge: {
+		sourcename:	"34"
+		targetname:	"40"
+		label:	"argument_list"
+		color:	green
+		textcolor:	black
+	}
+	backedge: {
+		sourcename:	"34"
+		targetname:	"32"
+		label:	"scalar_val"
+		color:	green
+		textcolor:	black
+	}
+	node: {
+		title:	"35"
+		label:	"state 35\n variable_assignment -> identifier T_ASSIGN argument . T_STMT_TERM"
+	}
+	edge: {
+		sourcename:	"35"
+		targetname:	"41"
+		label:	"T_STMT_TERM"
+		color:	blue
+		textcolor:	black
+	}
+	node: {
+		title:	"36"
+		label:	"state 36\n argument -> scalar_val ."
+	}
+	node: {
+		title:	"37"
+		label:	"state 37\n block_start -> T_STRING T_LBRACKET identifier T_RBRACKET T_LBRACE ."
+	}
+	node: {
+		title:	"38"
+		label:	"state 38\n function_statement -> identifier T_LPARAN argument_list T_RPARAN . T_STMT_TERM"
+	}
+	edge: {
+		sourcename:	"38"
+		targetname:	"42"
+		label:	"T_STMT_TERM"
+		color:	blue
+		textcolor:	black
+	}
+	node: {
+		title:	"39"
+		label:	"state 39\n argument_list -> argument_list T_COMMA . scalar_val"
+	}
+	backedge: {
+		sourcename:	"39"
+		targetname:	"18"
+		label:	"T_STRING"
+		color:	blue
+		textcolor:	black
+	}
+	backedge: {
+		sourcename:	"39"
+		targetname:	"27"
+		label:	"T_LONG"
+		color:	blue
+		textcolor:	black
+	}
+	backedge: {
+		sourcename:	"39"
+		targetname:	"28"
+		label:	"T_DOUBLE"
+		color:	blue
+		textcolor:	black
+	}
+	backedge: {
+		sourcename:	"39"
+		targetname:	"29"
+		label:	"T_QUOTED_STRING"
+		color:	blue
+		textcolor:	black
+	}
+	backedge: {
+		sourcename:	"39"
+		targetname:	"30"
+		label:	"identifier"
+		color:	green
+		textcolor:	black
+	}
+	edge: {
+		sourcename:	"39"
+		targetname:	"43"
+		label:	"scalar_val"
+		color:	green
+		textcolor:	black
+	}
+	node: {
+		title:	"40"
+		label:	"state 40\n argument -> T_LPARAN argument_list . T_RPARAN\n argument_list -> argument_list . T_COMMA scalar_val"
+	}
+	edge: {
+		sourcename:	"40"
+		targetname:	"44"
+		label:	"T_RPARAN"
+		color:	blue
+		textcolor:	black
+	}
+	backedge: {
+		sourcename:	"40"
+		targetname:	"39"
+		label:	"T_COMMA"
+		color:	blue
+		textcolor:	black
+	}
+	node: {
+		title:	"41"
+		label:	"state 41\n variable_assignment -> identifier T_ASSIGN argument T_STMT_TERM ."
+	}
+	node: {
+		title:	"42"
+		label:	"state 42\n function_statement -> identifier T_LPARAN argument_list T_RPARAN T_STMT_TERM ."
+	}
+	node: {
+		title:	"43"
+		label:	"state 43\n argument_list -> argument_list T_COMMA scalar_val ."
+	}
+	node: {
+		title:	"44"
+		label:	"state 44\n argument -> T_LPARAN argument_list T_RPARAN ."
+	}
+
+
+}

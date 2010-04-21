@@ -1,0 +1,38 @@
+Warning: The selected output language "norwegian" has not been updated
+since release 1.4.6.  As a result some sentences may appear in English.
+
+/home/bear/src/dispatch/src/config/lex.yy.cc:403: Warning: Compound yy_trans_info is not documented.
+/home/bear/src/dispatch/src/config/stack.hh:44: Warning: Compound dispatch::stack is not documented.
+/home/bear/src/dispatch/src/config/lex.yy.cc:243: Warning: Compound yy_buffer_state is not documented.
+/home/bear/src/dispatch/src/config/config_l.h:181: Warning: Compound yy_buffer_state is not documented.
+/home/bear/src/dispatch/src/config/lex.yy.cc:1653: Warning: documented function `void yyFlexLexer::yy_init_buffer' was not defined.
+/home/bear/src/dispatch/src/config/lex.yy.cc:1687: Warning: documented function `void yyFlexLexer::yy_flush_buffer' was not defined.
+/home/bear/src/dispatch/src/config/lex.yy.cc:1721: Warning: documented function `void yyFlexLexer::yypush_buffer_state' was not defined.
+/home/bear/src/dispatch/src/config/lex.yy.cc:1757: Warning: documented function `void yyFlexLexer::yypop_buffer_state' was not defined.
+/home/bear/src/dispatch/src/config/lex.yy.cc:1782: Warning: documented function `void yyFlexLexer::yyensure_buffer_stack' was not defined.
+/home/bear/src/dispatch/src/config/lex.yy.cc:1839: Warning: documented function `void yyFlexLexer::yy_push_state' was not defined.
+/home/bear/src/dispatch/src/config/lex.yy.cc:1867: Warning: documented function `void yyFlexLexer::yy_pop_state' was not defined.
+/home/bear/src/dispatch/src/config/lex.yy.cc:1879: Warning: documented function `int yyFlexLexer::yy_top_state' was not defined.
+/home/bear/src/dispatch/src/config/lex.yy.cc:1891: Warning: documented function `void yyFlexLexer::LexerError' was not defined.
+/home/bear/src/dispatch/src/config/config_y.tab.H:206: Warning: Member END (enumvalue) of class dispatch::config_parser::token is not documented.
+/home/bear/src/dispatch/src/config/config_y.tab.H:207: Warning: Member T_LPARAN (enumvalue) of class dispatch::config_parser::token is not documented.
+/home/bear/src/dispatch/src/config/config_y.tab.H:208: Warning: Member T_RPARAN (enumvalue) of class dispatch::config_parser::token is not documented.
+/home/bear/src/dispatch/src/config/config_y.tab.H:209: Warning: Member T_LBRACE (enumvalue) of class dispatch::config_parser::token is not documented.
+/home/bear/src/dispatch/src/config/config_y.tab.H:210: Warning: Member T_RBRACE (enumvalue) of class dispatch::config_parser::token is not documented.
+/home/bear/src/dispatch/src/config/config_y.tab.H:211: Warning: Member T_LBRACKET (enumvalue) of class dispatch::config_parser::token is not documented.
+/home/bear/src/dispatch/src/config/config_y.tab.H:212: Warning: Member T_RBRACKET (enumvalue) of class dispatch::config_parser::token is not documented.
+/home/bear/src/dispatch/src/config/config_y.tab.H:213: Warning: Member T_STRING (enumvalue) of class dispatch::config_parser::token is not documented.
+/home/bear/src/dispatch/src/config/config_y.tab.H:214: Warning: Member T_LONG (enumvalue) of class dispatch::config_parser::token is not documented.
+/home/bear/src/dispatch/src/config/config_y.tab.H:215: Warning: Member T_DOUBLE (enumvalue) of class dispatch::config_parser::token is not documented.
+/home/bear/src/dispatch/src/config/config_y.tab.H:216: Warning: Member T_COMMENT (enumvalue) of class dispatch::config_parser::token is not documented.
+/home/bear/src/dispatch/src/config/config_y.tab.H:217: Warning: Member T_WHITESPACE (enumvalue) of class dispatch::config_parser::token is not documented.
+/home/bear/src/dispatch/src/config/config_y.tab.H:218: Warning: Member T_QUOTED_STRING (enumvalue) of class dispatch::config_parser::token is not documented.
+/home/bear/src/dispatch/src/config/config_y.tab.H:219: Warning: Member T_DOT (enumvalue) of class dispatch::config_parser::token is not documented.
+/home/bear/src/dispatch/src/config/config_y.tab.H:220: Warning: Member T_STMT_TERM (enumvalue) of class dispatch::config_parser::token is not documented.
+/home/bear/src/dispatch/src/config/config_y.tab.H:221: Warning: Member T_ASSIGN (enumvalue) of class dispatch::config_parser::token is not documented.
+/home/bear/src/dispatch/src/config/config_y.tab.H:223: Warning: Member T_COMMA (enumvalue) of class dispatch::config_parser::token is not documented.
+/home/bear/src/dispatch/src/config/config_y.tab.H:205: Warning: Member yytokentype (enumeration) of class dispatch::config_parser::token is not documented.
+/home/bear/src/dispatch/src/config/stack.hh:112: Warning: Member slice(const S &stack, unsigned int range) (function) of class dispatch::slice is not documented.
+/home/bear/src/dispatch/src/config/stack.hh:118: Warning: Member operator[](unsigned int i) const  (function) of class dispatch::slice is not documented.
+<unknown>:-1: Warning: Found unknown command `\r'
+<unknown>:-1: Warning: Found unknown command `\r'
