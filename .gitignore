@@ -1,0 +1,6 @@
+# Git ignore file
+# bear 1.mai.2010
+# Ignore compiled object-files
+*.o
+# Ignore compiled shared object files
+*.so
