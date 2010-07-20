@@ -5,6 +5,7 @@
 #include <list>
 #include <iostream>
 #include "node_list.h"
+#include "location.hh"
 
 
 using namespace std;
@@ -95,18 +96,34 @@ class GConfigNode;
 */
 class GConfigParseError {
 	string _msg;
+	GConfigNode* _node;
 public:
 	/**
 	* Error tekst
 	*/
-	GConfigParseError(string m) {
-		_msg = m;
+	GConfigParseError(string m) : _msg(m), _node(NULL) {
+
 	}
+	
+	/**
+	* Error tekst, med relatert node
+	*/
+	GConfigParseError(string m, GConfigNode* n) : _msg(m), _node(n) {
+	
+	}
+	
 	/**
 	* Hent ut feilmeldingen fra exceptionen
 	*/
 	string getMessage() {
 		return _msg;
+	}
+	
+	/**
+	* Relatert node
+	*/
+	GConfigNode* node() {
+		return _node;
 	}
 };
 
@@ -142,12 +159,23 @@ protected:
 	*/
 	string _error_msg;
 	
+	/**
+	* Lokasjon i fila
+	*/
+	location config_loc;
+	
 public:
 
 	/**
 	* Initialiser med subklassenavnet
 	*/
 	GConfigNode(const char* classname);	
+	
+	/**
+	* Initialiser med klassenavn og location fra kildefil
+	*/
+	GConfigNode(const char* classname, location loc);
+	
 	virtual ~GConfigNode();
 
 	/**
@@ -191,7 +219,7 @@ public:
 	virtual bool addChildNode(GConfigNode* node) {
 		string msg = "Not allowed to add nodes to a ";
 		msg += getClassName();
-		throw new GConfigParseError(msg);
+		throw GConfigParseError(msg);
 	}
 
 	/**
@@ -203,6 +231,11 @@ public:
 	* Finn noder ut fra filter
 	*/
 	virtual GConfigNodeList findNodesByFilter(filter::NodeFilter* f);
+
+	/**
+	* Finn den første foreldren som matcher angitt filter
+	*/	
+	virtual GConfigNode* findParentByFilter(filter::NodeFilter* f, int level = 0);
 
 	/**
 	* Besøk av visitor
@@ -251,6 +284,13 @@ public:
 	*/
 	virtual string getClassName() {
 		return string(_classname);
+	}
+	
+	/**
+	* Hent ut location til noden i kildekonfigurasjonsfil
+	*/
+	virtual location getLocation() {
+		return config_loc;
 	}
 
 };

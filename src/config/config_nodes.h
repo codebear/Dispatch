@@ -13,6 +13,7 @@
 #include "node_list.h"
 #include <string.h>
 #include <stdlib.h>
+#include "location.hh"
 
 #ifdef yylex
 #undef yylex
@@ -58,7 +59,7 @@ class GConfigIdentifier	: public GConfigNode {
 		/**
 		* Intialiser med deler av identen
 		*/
-		GConfigIdentifier(char* str) : GConfigNode("GConfigIdentifier") {
+		GConfigIdentifier(char* str, location l) : GConfigNode("GConfigIdentifier", l) {
 //			std::cout << "New identifier: [" << str << "]" << std::endl;
 			parts.push_back(std::string(str));
 			tot_len = strlen(str);
@@ -81,14 +82,15 @@ class GConfigIdentifier	: public GConfigNode {
 		virtual string getNodeIdent() {
 			return getStringValue();
 		}
-
+		
 		/**
 		* Heng på en til string i identen
 		*/
-		void appendString(char* str) {
+		void appendString(char* str, location l) {
 //			std::cout << "Append to identifier: " << str << std::endl;
 			tot_len += 1+strlen(str);
 			parts.push_back(std::string(str));
+			config_loc = config_loc + l;
 		}
 
 		/**
@@ -200,7 +202,7 @@ class GConfigScalarVal : public GConfigNode {
 		/**
 		* Initialiser med long
 		*/
-		GConfigScalarVal(long lval) : GConfigNode("GConfigScalarVal") {
+		GConfigScalarVal(long lval, location l) : GConfigNode("GConfigScalarVal", l) {
 			type = LONG;
 			scalar.lval = lval;
 		};
@@ -208,7 +210,7 @@ class GConfigScalarVal : public GConfigNode {
 		/**
 		* Initialiser med double
 		*/
-		GConfigScalarVal(double dval) : GConfigNode("GConfigScalarVal") {
+		GConfigScalarVal(double dval, location l) : GConfigNode("GConfigScalarVal", l) {
 			type = DOUBLE;
 			scalar.dval = dval;
 		};
@@ -216,7 +218,7 @@ class GConfigScalarVal : public GConfigNode {
 		/**
 		* Initialiser med identifier
 		*/
-		GConfigScalarVal(GConfigIdentifier* x) : GConfigNode("GConfigScalarVal") {
+		GConfigScalarVal(GConfigIdentifier* x) : GConfigNode("GConfigScalarVal", x->getLocation()) {
 			type = IDENTIFIER;
 			scalar.ival = x;
 			x->setParentNode(this);
@@ -225,7 +227,7 @@ class GConfigScalarVal : public GConfigNode {
 		/**
 		* Initialiser med char* buffer
 		*/ 
-		GConfigScalarVal(char* buf) : GConfigNode("GConfigScalarVal") {
+		GConfigScalarVal(char* buf, location l) : GConfigNode("GConfigScalarVal", l) {
 			type = CHAR;
 			scalar.cval = strdup(buf);
 		};
@@ -296,15 +298,29 @@ class GConfigScalarVal : public GConfigNode {
 					break;
 				case CHAR:
 //					printf("BUF: [%s]\n", scalar.cval);
-					if (scalar.cval) {
-						return std::string(scalar.cval);
-					}
+					string_stream << scalar.cval;
+					res = string_stream.str();
+//					if (scalar.cval) {
+//						res = scalar.cval;
+//						return std::string(scalar.cval);
+//					}
 //					res = scalar.cval ? scalar.cval : "";
 					break;
 				case IDENTIFIER:
 					res = scalar.ival->getStringValue();
 			}
 			return res;
+		}
+		
+		
+		virtual int used(int u = 0) {
+			int i = GConfigNode::used(u);
+			if (type == IDENTIFIER) {
+				scalar.ival->used(u);
+			}
+			
+			
+			return i;
 		}
 };
 
@@ -388,6 +404,34 @@ class GConfigArgumentList : public GConfigNode {
 				arguments[i]->visit(visitor);
 			}
 		}
+		
+		/**
+		* Hent ut location i konfig-fil nodene kommer fra
+		*/
+		virtual location getLocation() {
+			int size = arguments.size();
+			switch(size) {
+				case 0:
+					return location();
+				case 1:
+					return arguments[0]->getLocation();
+				default:
+					return arguments[0]->getLocation()+arguments[size-1]->getLocation();
+			}
+		}
+		
+		/**
+		* Merk noden som brukt
+		*/ 
+	virtual int used(int u) {
+		int i = GConfigNode::used(u);
+		std::vector<GConfigScalarVal*>::iterator node_it;
+		for(node_it = arguments.begin(); node_it != arguments.end(); node_it++) {
+			(*node_it)->used(u);
+		}
+		
+		return i;
+	}
 };
 
 
@@ -440,6 +484,17 @@ public:
 		val->setParentNode(this);
 		this->arg_list = NULL;
 	}
+	
+	/**
+	* Hent ut location i konfig-fil til noden
+	*/
+	virtual location getLocation() {
+		if (scalar_val) {
+			return scalar_val->getLocation();
+		} else if (arg_list) {
+			return arg_list->getLocation();
+		}
+	}
 		
 	/**
 	* argument bestående av bare en string.
@@ -447,12 +502,12 @@ public:
 	* og den er nok ikke lenger i bruk. Renamer med obsolete_ og lar den ligge intill videre.
 	* @todo Er denne faktisk i bruk? Fjern dersom ingen motbevis dukker opp
 	*/
-	void obsolete_GConfigArgument(char* str)/* : GConfigNode("GConfigArgument-str")*/ {
+/*	void obsolete_GConfigArgument(char* str) : GConfigNode("GConfigArgument-str") {
 //		this->str_val = strdup(str);
 		this->arg_list = NULL;
 		this->scalar_val = NULL;
 	}
-
+*/
 	/**
 	* Returner node-type-id
 	*/
@@ -535,6 +590,7 @@ public:
 			scalar_val->visit(visitor);
 		}
 	}
+	
 };
 
 
@@ -554,14 +610,14 @@ class GConfigBlockHeader : public GConfigNode {
 		/**
 		* Initialiser blokkliste med navnet på den
 		*/
-		GConfigBlockHeader(char* navn) : GConfigNode("GConfigBlockHeader"), _navn(navn) {
+		GConfigBlockHeader(char* navn, location l) : GConfigNode("GConfigBlockHeader", l), _navn(navn) {
 			_ident = NULL;
 		}
 		
 		/**
 		* Initialiser blokkliste med navn og ident
 		*/
-		GConfigBlockHeader(char* navn, GConfigIdentifier* ident) : GConfigNode("GConfigBlockHeader"), _navn(navn) {
+		GConfigBlockHeader(char* navn, GConfigIdentifier* ident, location l) : GConfigNode("GConfigBlockHeader", l), _navn(navn) {
 			_ident = ident;
 			ident->setParentNode(this);
 		}
@@ -572,6 +628,7 @@ class GConfigBlockHeader : public GConfigNode {
 		virtual int getTypeId() {
 			return GConfig::BLOCK_HEADER;
 		}
+		
 
 		/**
 		* Hent ut node-ident til blokk-headeren (ekvivalent til node-ident for blokka)
@@ -754,6 +811,21 @@ class GConfigStatementList : public GConfigNode {
 				statements[i]->visit(visitor);
 			}
 		}
+		
+		/**
+		* Hent ut location til noden i konfig-fil
+		*/
+		virtual location getLocation() {
+			int size = statements.size();
+			switch(size) {
+				case 0:
+					return location();
+				case 1:
+					return statements[0]->getLocation();
+				default:
+					return statements[0]->getLocation()+statements[size-1]->getLocation();
+			}
+		}
 };
 
 
@@ -821,6 +893,13 @@ public:
 //		printf("Visitor i block\n");
 		visitor->node(this);
 	}
+	
+	/**
+	* Hent ut location til noden i konfig-fil
+	*/
+	virtual location getLocation() {
+		return _head->getLocation() + _list->getLocation();
+	}
 
 		/**
 		* Send visitoren videre til dine barn
@@ -829,6 +908,13 @@ public:
 		if (_list) {
 			_list->visit(visitor);
 		}
+	}
+	
+	/**
+	* Hent ut Liste over alle statements i blokken
+	*/
+	GConfigStatementList* getStatementList() {
+		return _list;
 	}
 };
 
@@ -954,6 +1040,23 @@ public:
 		ident->setParentNode(this);
 		arguments = args;
 		args->setParentNode(this);
+	}
+	
+	/**
+	* Hent ut location til noden i konfig-fil
+	*/
+	virtual location getLocation() {
+		return fname->getLocation()+arguments->getLocation();
+	}
+	
+	/**
+	* Marker noden som brukt
+	*/
+	virtual int used(int u = 0) {
+		int i = GConfigStatement::used(u);
+		fname->used(u);
+		arguments->used(u);
+		return i;
 	}
 
 	/**
@@ -1106,6 +1209,13 @@ class GConfigVariableStatement : public GConfigStatement {
 
 //			std::cout << "Variable: " << ident << " = " << arg << std::endl;
 		}
+		
+		/**
+		* Hent ut location i konfigfil til noden
+		*/
+		virtual location getLocation() {
+			return vname->getLocation()+value->getLocation();
+		}
 
 		/**
 		* Hent ut ident til variabel
@@ -1171,7 +1281,7 @@ class GConfigVariableStatement : public GConfigStatement {
 		* Marker node som brukt
 		*/
 		virtual int used(int i) {
-			int res = GConfigNode::used(i);
+			int res = GConfigStatement::used(i);
 			if (vname) {
 				vname->used(i);
 			}

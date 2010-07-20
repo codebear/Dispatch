@@ -137,6 +137,7 @@ using namespace ::dispatch::config;
 
 %initial-action {
 	// void
+ @$.begin.filename = @$.end.filename = new string(driver.getFileName());
 }
 
 %{
@@ -155,16 +156,16 @@ block_list:	block { $$ = new GConfigBlockList($1); }
 			| 	block_list block  { $1->appendBlock($2); $$ = $1; }
 ;
 
-block_start:  	T_STRING  T_LBRACKET identifier T_RBRACKET T_LBRACE { $$ = new GConfigBlockHeader($1, $3); free($1); }
-			|	T_STRING  T_LBRACE { $$ = new GConfigBlockHeader($1); free($1); }
+block_start:  	T_STRING  T_LBRACKET identifier T_RBRACKET T_LBRACE { $$ = new GConfigBlockHeader($1, $3, @1); free($1); }
+			|	T_STRING  T_LBRACE { $$ = new GConfigBlockHeader($1, @1); free($1); }
 ;
 
 block:  		block_start inner_statement_list T_RBRACE { $$ = new GConfigBlock($1, $2); }
 ;
 
 
-identifier: 	T_STRING { $$ = new GConfigIdentifier($1); free($1); }
-			|	identifier T_DOT T_STRING { $1->appendString($3); free($3); $$ = $1; }
+identifier: 	T_STRING { $$ = new GConfigIdentifier($1, @1); free($1); }
+			|	identifier T_DOT T_STRING { $1->appendString($3, @3); free($3); $$ = $1; }
 ;
 
 inner_statement_list:	inner_statement { $$ = new GConfigStatementList($1); }
@@ -195,9 +196,9 @@ argument_list:	scalar_val { $$ = new GConfigArgumentList($1); }
 			|	argument_list T_COMMA scalar_val { $1->appendArgument($3); $$ = $1; }
 ;
 
-scalar_val: 	T_LONG { $$ = new GConfigScalarVal($1); }
-			|	T_DOUBLE { $$ = new GConfigScalarVal($1); }
-			|	T_QUOTED_STRING { $$ = new GConfigScalarVal($1); free($1); }
+scalar_val: 	T_LONG { $$ = new GConfigScalarVal($1, @1); }
+			|	T_DOUBLE { $$ = new GConfigScalarVal($1, @1); }
+			|	T_QUOTED_STRING { $$ = new GConfigScalarVal($1, @1); free($1); }
 			|	identifier { $$ = new GConfigScalarVal($1); }
 ;
 

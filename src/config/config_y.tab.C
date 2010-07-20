@@ -281,6 +281,7 @@ namespace dispatch
     
 {
 	// void
+ yylloc.begin.filename = yylloc.end.filename = new string(driver.getFileName());
 }
   /* Line 555 of yacc.c.  */
 
@@ -415,12 +416,12 @@ namespace dispatch
 
   case 5:
 
-    { (yyval.gc_block_header) = new GConfigBlockHeader((yysemantic_stack_[(5) - (1)].str_val), (yysemantic_stack_[(5) - (3)].gc_identifier)); free((yysemantic_stack_[(5) - (1)].str_val)); ;}
+    { (yyval.gc_block_header) = new GConfigBlockHeader((yysemantic_stack_[(5) - (1)].str_val), (yysemantic_stack_[(5) - (3)].gc_identifier), (yylocation_stack_[(5) - (1)])); free((yysemantic_stack_[(5) - (1)].str_val)); ;}
     break;
 
   case 6:
 
-    { (yyval.gc_block_header) = new GConfigBlockHeader((yysemantic_stack_[(2) - (1)].str_val)); free((yysemantic_stack_[(2) - (1)].str_val)); ;}
+    { (yyval.gc_block_header) = new GConfigBlockHeader((yysemantic_stack_[(2) - (1)].str_val), (yylocation_stack_[(2) - (1)])); free((yysemantic_stack_[(2) - (1)].str_val)); ;}
     break;
 
   case 7:
@@ -430,12 +431,12 @@ namespace dispatch
 
   case 8:
 
-    { (yyval.gc_identifier) = new GConfigIdentifier((yysemantic_stack_[(1) - (1)].str_val)); free((yysemantic_stack_[(1) - (1)].str_val)); ;}
+    { (yyval.gc_identifier) = new GConfigIdentifier((yysemantic_stack_[(1) - (1)].str_val), (yylocation_stack_[(1) - (1)])); free((yysemantic_stack_[(1) - (1)].str_val)); ;}
     break;
 
   case 9:
 
-    { (yysemantic_stack_[(3) - (1)].gc_identifier)->appendString((yysemantic_stack_[(3) - (3)].str_val)); free((yysemantic_stack_[(3) - (3)].str_val)); (yyval.gc_identifier) = (yysemantic_stack_[(3) - (1)].gc_identifier); ;}
+    { (yysemantic_stack_[(3) - (1)].gc_identifier)->appendString((yysemantic_stack_[(3) - (3)].str_val), (yylocation_stack_[(3) - (3)])); free((yysemantic_stack_[(3) - (3)].str_val)); (yyval.gc_identifier) = (yysemantic_stack_[(3) - (1)].gc_identifier); ;}
     break;
 
   case 10:
@@ -505,17 +506,17 @@ namespace dispatch
 
   case 23:
 
-    { (yyval.gc_scalar_val) = new GConfigScalarVal((yysemantic_stack_[(1) - (1)].long_val)); ;}
+    { (yyval.gc_scalar_val) = new GConfigScalarVal((yysemantic_stack_[(1) - (1)].long_val), (yylocation_stack_[(1) - (1)])); ;}
     break;
 
   case 24:
 
-    { (yyval.gc_scalar_val) = new GConfigScalarVal((yysemantic_stack_[(1) - (1)].double_val)); ;}
+    { (yyval.gc_scalar_val) = new GConfigScalarVal((yysemantic_stack_[(1) - (1)].double_val), (yylocation_stack_[(1) - (1)])); ;}
     break;
 
   case 25:
 
-    { (yyval.gc_scalar_val) = new GConfigScalarVal((yysemantic_stack_[(1) - (1)].str_val)); free((yysemantic_stack_[(1) - (1)].str_val)); ;}
+    { (yyval.gc_scalar_val) = new GConfigScalarVal((yysemantic_stack_[(1) - (1)].str_val), (yylocation_stack_[(1) - (1)])); free((yysemantic_stack_[(1) - (1)].str_val)); ;}
     break;
 
   case 26:
@@ -883,9 +884,9 @@ namespace dispatch
   const unsigned char
   config_parser::yyrline_[] =
   {
-         0,   151,   151,   154,   155,   158,   159,   162,   166,   167,
-     170,   171,   174,   175,   176,   177,   180,   183,   186,   190,
-     191,   194,   195,   198,   199,   200,   201
+         0,   152,   152,   155,   156,   159,   160,   163,   167,   168,
+     171,   172,   175,   176,   177,   178,   181,   184,   187,   191,
+     192,   195,   196,   199,   200,   201,   202
   };
 
   // Print the state stack on the debug stream.

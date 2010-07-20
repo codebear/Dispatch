@@ -9,7 +9,7 @@ typedef dispatch::config_parser::token_type token_type;
 typedef dispatch::config_parser::token	token;
 typedef	dispatch::config_parser::semantic_type	semantic_type;
 typedef	dispatch::config_parser::location_type	location_type;
-
+int colnum;
 #define yyterminate() return token::END
 
 # define YY_DECL	token_type dispatch::config::configScanner::lex (semantic_type* yylval, location_type* yylloc)
@@ -20,6 +20,7 @@ typedef	dispatch::config_parser::location_type	location_type;
 #endif
 
 #define yywrap() 1
+
 
 %}
 
@@ -34,18 +35,23 @@ typedef	dispatch::config_parser::location_type	location_type;
 
 %option debug
 
+%option yylineno
+
 %x	CONFIG
 %x	COMMENT
 
 %{
 	
-#define YY_USER_ACTION  yylloc->columns(yyleng);
+#define YY_USER_ACTION {yylloc->begin.line = yylineno; yylloc->begin.column = colnum; colnum=colnum+yyleng; yylloc->end.column=colnum; yylloc->end.line = yylineno;}
+
+/* #define YY_USER_ACTION  yylloc->columns(yyleng); */
 
 %}
 
 
 %% /** Regler for tokenisering **/
 %{
+	colnum = 0;
 	BEGIN CONFIG;
 	yylloc->step();
 %}

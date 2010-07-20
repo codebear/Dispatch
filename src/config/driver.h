@@ -111,6 +111,8 @@ namespace config {
 		* Initialiser driver med filnavn og en basis-katalog
 		*/
 		parseDriver(const string& filename, const string &basedir);
+		
+		
 		~parseDriver();
 		
 		/**
@@ -182,6 +184,10 @@ namespace config {
 			}
 			return string();
 		}
+		
+		string getBaseDir() {
+			return basedir;
+		}
 
 		/**
 		* Hent ut noden som er aktiv nå
@@ -231,7 +237,7 @@ namespace config {
 				if (f == NULL) {
 					return;
 				}
-				printf("FUNCTION: %s\n", f);
+//				printf("FUNCTION: %s\n", f);
 				if (strcmp(f, "include") == 0) {
 					if (!func->used()) {
 						func->used(1);
@@ -248,7 +254,7 @@ namespace config {
 					std::free(f);
 					return;
 				}
-				printf("FUNCTION: %s\n", f);
+//				printf("FUNCTION: %s\n", f);
 				std::free(f);
 			}
 			n->visitChildren(this);
@@ -258,21 +264,33 @@ namespace config {
 		/**
 		* Kjør inkludering av katalog
 		*/
-		void doIncludeDir(GConfigFunctionStatement* f) {
+		bool doIncludeDir(GConfigFunctionStatement* f) {
 			vector<GConfigScalarVal*> args = f->getArguments();
 			vector<string> filer = vector<string>();
+			bool success = true;
 			for(int i = 0; i < args.size(); i++) {
 				GConfigScalarVal* v = args[i];
-				if (!v) continue;
+				if (!v) {
+					continue;
+				}
 				string dir = v->getStringValue();
+				if(!dir.length()) {
+					continue;
+				}
+				if (dir[0] != '/') {
+					dir = driver->getBaseDir() + "/"+dir;
+				}
 				cout << "Argument (dir): " << dir << endl;
-				getdir(dir, filer, true);
+				if (getdir(dir, filer, true)) {
+					success = false;
+				}
 			}
 
 			for(int i = 0; i < filer.size(); i ++) {
 				string fil = filer[i];
 				driver->queueFileForParsing(fil, f->getParentNode());
 			}
+			return success;
 		}
 
 		/**
@@ -301,7 +319,7 @@ namespace config {
 		/**
 		* Kjør inkludering av enkeltfil
 		*/
-		void doInclude(GConfigFunctionStatement* f) {
+		bool doInclude(GConfigFunctionStatement* f) {
 			vector<GConfigScalarVal*> args = f->getArguments();
 			for(int i = 0; i < args.size(); i++) {
 				GConfigScalarVal* v = args[i];
@@ -391,7 +409,7 @@ namespace config {
 					break;
 				default:
 					cerr << "Node: " << node->getClassName() << " - " << node->getNodeName()<< "[" << node->getTypeId() << "] Ident: " <<
-						node->getNodeIdent() << " is unused in config" << endl;
+						node->getNodeIdent() << " location: " << node->getLocation() << " is unused in config" << endl;
 					errcnt++;
 				}
 			}

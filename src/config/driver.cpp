@@ -142,8 +142,8 @@ namespace config {
 				runVisitor(&includes);
 			}
 			//runVisitor(new dumpTreeVisitor());
-		} catch(GConfigParseError* ex) {
-			cerr << "Parse error (ex: " << ex->getMessage() << ")" << endl;
+		} catch(GConfigParseError ex) {
+			cerr << "Parse error (ex: " << ex.getMessage() << ")" << endl;
 		}
 		return 0;
 	}

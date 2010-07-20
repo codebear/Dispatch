@@ -15,12 +15,20 @@ namespace config {
 
 GConfigAutoreleasePool* GConfigAutoreleasePool::instance = NULL;
 
-GConfigNode::GConfigNode(const char* classname) {
-	this->_classname = classname;
-	parent = NULL;
-	_used = 0;
+GConfigNode::GConfigNode(const char* classname) : 
+	_classname(classname), 
+	parent(NULL),
+	_used(0) {
 	GConfigAutoreleasePool::getInstance()->add(this);
 //			std::cout << "Nytt " << classname << " @ " << this << std::endl;
+}
+
+GConfigNode::GConfigNode(const char* classname, location l) : 
+	config_loc(l),
+	_classname(classname), 
+	parent(NULL),
+	_used(0) {
+	
 }
 
 GConfigNode::~GConfigNode() {
@@ -51,6 +59,17 @@ string GConfigNode::getNodeName() {
 
 string GConfigNode::getNodeIdent() {
 	return string();
+}
+
+
+GConfigNode* GConfigNode::findParentByFilter(filter::NodeFilter* f, int level) {
+	if (level && f->accept(this)) {
+		return this;
+	}
+	GConfigNode* par = getParentNode();
+	if (par) {
+		return par->findParentByFilter(f, level+1);
+	}
 }
 
 

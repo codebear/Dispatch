@@ -214,7 +214,20 @@ extern int yyleng;
 #define EOB_ACT_END_OF_FILE 1
 #define EOB_ACT_LAST_MATCH 2
 
-    #define YY_LESS_LINENO(n)
+    /* Note: We specifically omit the test for yy_rule_can_match_eol because it requires
+     *       access to the local variable yy_act. Since yyless() is a macro, it would break
+     *       existing scanners that call yyless() from OUTSIDE yylex. 
+     *       One obvious solution it to make yy_act a global. I tried that, and saw
+     *       a 5% performance hit in a non-yylineno scanner, because yy_act is
+     *       normally declared as a register variable-- so it is not worth it.
+     */
+    #define  YY_LESS_LINENO(n) \
+            do { \
+                int yyl;\
+                for ( yyl = n; yyl < yyleng; ++yyl )\
+                    if ( yytext[yyl] == '\n' )\
+                        --yylineno;\
+            }while(0)
     
 /* Return all but the first "n" matched characters back to the input stream. */
 #define yyless(n) \
@@ -488,10 +501,16 @@ static yyconst flex_int16_t yy_chk[64] =
        35,   35,   35
     } ;
 
+/* Table of booleans, true if rule could match eol. */
+static yyconst flex_int32_t yy_rule_can_match_eol[20] =
+    {   0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 
+        };
+
 static yyconst flex_int16_t yy_rule_linenum[19] =
     {   0,
-       53,   54,   55,   56,   57,   58,   59,   60,   61,   62,
-       65,   70,   74,   78,   82,   98,  102,  106
+       59,   60,   61,   62,   63,   64,   65,   66,   67,   68,
+       71,   76,   80,   84,   88,  104,  108,  112
     } ;
 
 /* The intent behind this definition is that it'll catch
@@ -512,7 +531,7 @@ typedef dispatch::config_parser::token_type token_type;
 typedef dispatch::config_parser::token	token;
 typedef	dispatch::config_parser::semantic_type	semantic_type;
 typedef	dispatch::config_parser::location_type	location_type;
-
+int colnum;
 #define yyterminate() return token::END
 
 # define YY_DECL	token_type dispatch::config::configScanner::lex (semantic_type* yylval, location_type* yylloc)
@@ -524,16 +543,19 @@ typedef	dispatch::config_parser::location_type	location_type;
 
 #define yywrap() 1
 
+
 /*
 %option prefix="config"
 */
 
 
-#line 41 "config_l.l"
+#line 44 "config_l.l"
 	
-#define YY_USER_ACTION  yylloc->columns(yyleng);
+#define YY_USER_ACTION {yylloc->begin.line = yylineno; yylloc->begin.column = colnum; colnum=colnum+yyleng; yylloc->end.column=colnum; yylloc->end.line = yylineno;}
 
-#line 537 "lex.yy.cc"
+/* #define YY_USER_ACTION  yylloc->columns(yyleng); */
+
+#line 559 "lex.yy.cc"
 
 #define INITIAL 0
 #define CONFIG 1
@@ -692,14 +714,15 @@ YY_DECL
 	register int yy_act;
     
 /* %% [7.0] user's declarations go here */
-#line 47 "config_l.l"
+#line 52 "config_l.l"
 
 
+	colnum = 0;
 	BEGIN CONFIG;
 	yylloc->step();
 
 
-#line 703 "lex.yy.cc"
+#line 726 "lex.yy.cc"
 
 	if ( !(yy_init) )
 		{
@@ -780,6 +803,16 @@ yy_find_action:
 
 /* %% [11.0] code for yylineno update goes here */
 
+		if ( yy_act != YY_END_OF_BUFFER && yy_rule_can_match_eol[yy_act] )
+			{
+			int yyl;
+			for ( yyl = 0; yyl < yyleng; ++yyl )
+				if ( yytext[yyl] == '\n' )
+					   
+    yylineno++;
+;
+			}
+
 do_action:	/* This label is used only to access EOF actions. */
 
 /* %% [12.0] debug code goes here */
@@ -810,57 +843,57 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 53 "config_l.l"
+#line 59 "config_l.l"
 { return token::T_LBRACE; }
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 54 "config_l.l"
+#line 60 "config_l.l"
 { return token::T_RBRACE; }
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 55 "config_l.l"
+#line 61 "config_l.l"
 { return token::T_LPARAN; }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 56 "config_l.l"
+#line 62 "config_l.l"
 { return token::T_RPARAN; }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 57 "config_l.l"
+#line 63 "config_l.l"
 { return token::T_LBRACKET; }
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 58 "config_l.l"
+#line 64 "config_l.l"
 { return token::T_RBRACKET; }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 59 "config_l.l"
+#line 65 "config_l.l"
 { return token::T_DOT; }
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 60 "config_l.l"
+#line 66 "config_l.l"
 { return token::T_ASSIGN; }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 61 "config_l.l"
+#line 67 "config_l.l"
 { return token::T_STMT_TERM; }
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 62 "config_l.l"
+#line 68 "config_l.l"
 { return token::T_COMMA; }
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 65 "config_l.l"
+#line 71 "config_l.l"
 {
 									yylval->double_val = atof(yytext);
 									return token::T_DOUBLE;
@@ -868,7 +901,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 70 "config_l.l"
+#line 76 "config_l.l"
 { 
 									yylval->long_val = atol(yytext);
 									return token::T_LONG;
@@ -876,7 +909,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 74 "config_l.l"
+#line 80 "config_l.l"
 {
 										yylval->str_val = strdup(yytext);
 										return token::T_STRING;
@@ -885,7 +918,7 @@ YY_RULE_SETUP
 case 14:
 /* rule 14 can match eol */
 YY_RULE_SETUP
-#line 78 "config_l.l"
+#line 84 "config_l.l"
 {
 										return token::T_WHITESPACE;
 							}
@@ -893,7 +926,7 @@ YY_RULE_SETUP
 case 15:
 /* rule 15 can match eol */
 YY_RULE_SETUP
-#line 82 "config_l.l"
+#line 88 "config_l.l"
 {
 
 										int t_len = yyleng; //strlen(yytext);
@@ -912,30 +945,30 @@ YY_RULE_SETUP
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 98 "config_l.l"
+#line 104 "config_l.l"
 {
 							BEGIN COMMENT;
 						}
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 102 "config_l.l"
+#line 108 "config_l.l"
 {
 							BEGIN CONFIG;
 						}
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 106 "config_l.l"
+#line 112 "config_l.l"
 {
 						}
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 108 "config_l.l"
+#line 114 "config_l.l"
 ECHO;
 	YY_BREAK
-#line 939 "lex.yy.cc"
+#line 972 "lex.yy.cc"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(CONFIG):
 case YY_STATE_EOF(COMMENT):
@@ -1419,6 +1452,10 @@ int yyFlexLexer::yy_get_next_buffer()
 
 /* %% [18.0] update yylineno here */
 
+    if ( c == '\n' ){
+        --yylineno;
+    }
+
 	(yytext_ptr) = yy_bp;
 	(yy_hold_char) = *yy_cp;
 	(yy_c_buf_p) = yy_cp;
@@ -1495,6 +1532,10 @@ int yyFlexLexer::yy_get_next_buffer()
 	(yy_hold_char) = *++(yy_c_buf_p);
 
 /* %% [19.0] update BOL and yylineno */
+	if ( c == '\n' )
+		   
+    yylineno++;
+;
 
 	return c;
 }
@@ -1986,7 +2027,7 @@ void yyfree (void * ptr )
 
 /* %ok-for-header */
 
-#line 108 "config_l.l"
+#line 114 "config_l.l"
 
 
 namespace dispatch {
