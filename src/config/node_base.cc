@@ -24,10 +24,11 @@ GConfigNode::GConfigNode(const char* classname) :
 }
 
 GConfigNode::GConfigNode(const char* classname, location l) : 
-	config_loc(l),
 	_classname(classname), 
 	parent(NULL),
-	_used(0) {
+	_used(0),
+	config_loc(l)
+{
 	
 }
 
@@ -70,6 +71,7 @@ GConfigNode* GConfigNode::findParentByFilter(filter::NodeFilter* f, int level) {
 	if (par) {
 		return par->findParentByFilter(f, level+1);
 	}
+	return NULL;
 }
 
 

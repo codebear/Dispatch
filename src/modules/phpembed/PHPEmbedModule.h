@@ -10,6 +10,7 @@ using namespace dispatch::config::filter;
 namespace dispatch {
 namespace module {
 namespace phpembed {
+
 /**
 * Modul-implementasjon som skal kunne håndtere eventer ved hjelp av PHP-skript
 */	

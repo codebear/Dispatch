@@ -14,4 +14,4 @@ fifoeventlistener.so: FifoEventSourceModule.o	FifoStreamListener.o $(MODULE_CORE
 
 
 clean:
-	rm *.o *.so
+	rm -f *.o *.so

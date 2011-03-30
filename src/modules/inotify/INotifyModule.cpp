@@ -6,7 +6,9 @@ using namespace dispatch::config::filter;
 namespace dispatch {
 namespace module {
 namespace inotify {
-	INotifyModule::INotifyModule() {}
+	INotifyModule::INotifyModule() :
+		handler(this)
+	{}
 	INotifyModule::~INotifyModule() {}
 	bool INotifyModule::preInitialize() {
 		return true;

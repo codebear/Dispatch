@@ -17,17 +17,20 @@
 #include <vector>
 #include <queue>
 #include <string>
+#include <cstdlib>
 //#include <map>
 
 #include "node_base.h"
 #include "config_nodes.h"
-#include "config_y.tab.H"
+//#include "config_y.tab.H"
 
 using namespace std;
 //using namespace dispatch::config_parser;
+using namespace dispatch;
 
 namespace dispatch {
 namespace config {
+
 
 	class configIncludeFunctionVisitor;
 	
@@ -222,7 +225,6 @@ namespace config {
 //				printf("Fikk ingenting\n");
 				return;
 			}
-			int t = n->getTypeId();
 //			printf("Besøker node av type %d @ %08x\n", t, n);
 			if (n->getTypeId() == GConfig::FUNCTION) {
 				GConfigFunctionStatement* func = dynamic_cast<GConfigFunctionStatement*>(n);
@@ -268,7 +270,7 @@ namespace config {
 			vector<GConfigScalarVal*> args = f->getArguments();
 			vector<string> filer = vector<string>();
 			bool success = true;
-			for(int i = 0; i < args.size(); i++) {
+			for(uint i = 0; i < args.size(); i++) {
 				GConfigScalarVal* v = args[i];
 				if (!v) {
 					continue;
@@ -286,7 +288,7 @@ namespace config {
 				}
 			}
 
-			for(int i = 0; i < filer.size(); i ++) {
+			for(uint i = 0; i < filer.size(); i ++) {
 				string fil = filer[i];
 				driver->queueFileForParsing(fil, f->getParentNode());
 			}
@@ -321,13 +323,14 @@ namespace config {
 		*/
 		bool doInclude(GConfigFunctionStatement* f) {
 			vector<GConfigScalarVal*> args = f->getArguments();
-			for(int i = 0; i < args.size(); i++) {
+			for(uint i = 0; i < args.size(); i++) {
 				GConfigScalarVal* v = args[i];
 				if (!v) continue;
 				string file = v->getStringValue();
 				driver->queueFileForParsing(file, f->getParentNode());
 				cout << "Argument (file): " << file << endl;
 			}
+			return true;
 		}
 	};
 
@@ -367,7 +370,7 @@ namespace config {
 					cerr << "Breaking loop... this is probably wrong..." << endl;
 					break;
 				}
-			} while(c_node = c_node->getParentNode());
+			} while( (c_node = c_node->getParentNode()) );
 			cout << path << endl;
 		children:
 			switch(node_type) {

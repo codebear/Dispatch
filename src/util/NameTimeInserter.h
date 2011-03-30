@@ -73,14 +73,14 @@ public:
 	NameTimeTaggedOutput out;
 	
 	/**
-	* Stdlog
-	*/
-	NameTimeTaggedOutput log;
-	
-	/**
 	* Stderr
 	*/
 	NameTimeTaggedOutput err;
+
+	/**
+	* Stdlog
+	*/
+	NameTimeTaggedOutput log;
 	
 	/**
 	* Stddbg
@@ -88,13 +88,23 @@ public:
 	NameTimeTaggedOutput dbg;
 	
 	/**
+	* Instansier med standard
+	*/
+	NameTimeTaggingOutputSet() :
+		out(this, cout.rdbuf()),
+		err(this, cerr.rdbuf()),
+		log(this, clog.rdbuf()),
+		dbg(this, cerr.rdbuf()) {
+	
+	}
+	/**
 	* Instansier med streambufs
 	*/
 	NameTimeTaggingOutputSet(streambuf* o, streambuf* e, streambuf* l, streambuf* d) : 
 		out(this, o),
+		err(this, e),
 		log(this, l),
-		dbg(this, d),
-		err(this, e) {
+		dbg(this, d) {
 	}
 };
 

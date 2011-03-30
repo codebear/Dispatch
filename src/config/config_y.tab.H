@@ -1,23 +1,23 @@
-/* A Bison parser, made by GNU Bison 2.3.  */
+
+/* A Bison parser, made by GNU Bison 2.4.1.  */
 
 /* Skeleton interface for Bison LALR(1) parsers in C++
-
-   Copyright (C) 2002, 2003, 2004, 2005, 2006 Free Software Foundation, Inc.
-
-   This program is free software; you can redistribute it and/or modify
+   
+      Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007, 2008 Free Software
+   Foundation, Inc.
+   
+   This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 2, or (at your option)
-   any later version.
-
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+   
    This program is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
-
+   
    You should have received a copy of the GNU General Public License
-   along with this program; if not, write to the Free Software
-   Foundation, Inc., 51 Franklin Street, Fifth Floor,
-   Boston, MA 02110-1301, USA.  */
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
 /* As a special exception, you may create a larger work that contains
    part or all of the Bison parser skeleton and distribute that work
@@ -28,7 +28,7 @@
    special exception, which will cause the skeleton and the resulting
    Bison output files to be licensed under the GNU General Public
    License without this special exception.
-
+   
    This special exception was added by the Free Software Foundation in
    version 2.2 of Bison.  */
 
@@ -37,28 +37,19 @@
 #ifndef PARSER_HEADER_H
 # define PARSER_HEADER_H
 
+
+
 #include <string>
 #include <iostream>
 #include "stack.hh"
 
-namespace dispatch
-{
+
+namespace dispatch {
+
   class position;
   class location;
-}
 
-/* First part of user declarations.  */
-
-
-#include "config_nodes.h"
-#include <alloca.h>
-namespace dispatch{namespace config{
-	class parseDriver;
-}}
-using namespace ::dispatch::config;
-
-
-/* Line 303 of lalr1.cc.  */
+} // dispatch
 
 
 #include "location.hh"
@@ -100,8 +91,9 @@ do {							\
 } while (false)
 #endif
 
-namespace dispatch
-{
+
+namespace dispatch {
+
 
   /// A Bison parser.
   class config_parser
@@ -110,8 +102,9 @@ namespace dispatch
     /// Symbol semantic values.
 #ifndef YYSTYPE
     union semantic_type
+    {
 
-{
+
 	
 	// pods
 	/**
@@ -133,66 +126,66 @@ namespace dispatch
 	/**
 	* Liste med argumenter
 	*/
-	GConfigArgumentList*		gc_argument_list;
+	config::GConfigArgumentList*		gc_argument_list;
 	
 	/**
 	* Argument til en variabeldeklarasjon
 	*/
-	GConfigArgument* 			gc_argument;
+	config::GConfigArgument* 			gc_argument;
 	
 	/**
 	* Identifier node
 	*/
-	GConfigIdentifier*			gc_identifier;
+	config::GConfigIdentifier*			gc_identifier;
 	
 	/**
 	* Variabel-deklarasjon med scalar innhold
 	*/
-	GConfigScalarVal*			gc_scalar_val;
+	config::GConfigScalarVal*			gc_scalar_val;
 	
 	/**
 	* Blokk
 	*/
-	GConfigBlock*				gc_block;
+	config::GConfigBlock*				gc_block;
 	
 	/**
 	* Headeren til en blokk
 	*/
-	GConfigBlockHeader*			gc_block_header;
+	config::GConfigBlockHeader*			gc_block_header;
 	
 	/**
 	* Liste med blokker
 	*/
-	GConfigBlockList*			gc_block_list;
+	config::GConfigBlockList*			gc_block_list;
 	
 	/**
 	* Liste med statements
 	*/
-	GConfigStatementList*		gc_statement_list;
+	config::GConfigStatementList*		gc_statement_list;
 	
 	/**
 	* Generelt statement
 	*/
-	GConfigStatement*			gc_statement;
+	config::GConfigStatement*			gc_statement;
 	
 	/**
 	* Definerings-statement-node
 	*/
-	GConfigDefineStatement*		gc_define;
+	config::GConfigDefineStatement*		gc_define;
 	
 	/**
 	* Variabel-deklarasjonsnode
 	*/
-	GConfigVariableStatement*	gc_variable;
+	config::GConfigVariableStatement*	gc_variable;
 	
 	/**
 	* Funksjons-deklarasjons-node
 	*/
-	GConfigFunctionStatement*	gc_function;
-}
-/* Line 303 of lalr1.cc.  */
+	config::GConfigFunctionStatement*	gc_function;
 
-	;
+
+
+    };
 #else
     typedef YYSTYPE semantic_type;
 #endif
@@ -234,6 +227,7 @@ namespace dispatch
     /// \returns  0 iff parsing succeeded.
     virtual int parse ();
 
+#if YYDEBUG
     /// The current debugging stream.
     std::ostream& debug_stream () const;
     /// Set the current debugging stream.
@@ -245,6 +239,7 @@ namespace dispatch
     debug_level_type debug_level () const;
     /// Set the current debugging level.
     void set_debug_level (debug_level_type l);
+#endif
 
   private:
     /// Report a syntax error.
@@ -254,7 +249,7 @@ namespace dispatch
 
     /// Generate an error message.
     /// \param state   the state where the error occurred.
-    /// \param tok     the look-ahead token.
+    /// \param tok     the lookahead token.
     virtual std::string yysyntax_error_ (int yystate, int tok);
 
 #if YYDEBUG
@@ -272,7 +267,7 @@ namespace dispatch
     virtual void yy_symbol_print_ (int yytype,
 				   const semantic_type* yyvaluep,
 				   const location_type* yylocationp);
-#endif /* ! YYDEBUG */
+#endif
 
 
     /// State numbers.
@@ -349,6 +344,10 @@ namespace dispatch
     virtual void yy_reduce_print_ (int r);
     /// Print the state stack on the debug stream.
     virtual void yystack_print_ ();
+
+    /* Debugging.  */
+    int yydebug_;
+    std::ostream* yycdebug_;
 #endif
 
     /// Convert a scanner token number \a t to a symbol number.
@@ -380,15 +379,13 @@ namespace dispatch
     static const unsigned int yyuser_token_number_max_;
     static const token_number_type yyundef_token_;
 
-    /* Debugging.  */
-    int yydebug_;
-    std::ostream* yycdebug_;
-
-
     /* User arguments.  */
     class config::parseDriver& driver;
   };
-}
+
+} // dispatch
+
+
 
 
 #endif /* ! defined PARSER_HEADER_H */

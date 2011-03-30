@@ -13,6 +13,7 @@
 #include "node_list.h"
 #include <string.h>
 #include <stdlib.h>
+#include <cstdlib>
 #include "location.hh"
 
 #ifdef yylex
@@ -101,7 +102,7 @@ class GConfigIdentifier	: public GConfigNode {
 			size += this->parts.size();
 			char* buf = (char*)calloc(1, size);
 			char* dst = buf;
-			for(int i = 0; i < this->parts.size(); i++) {
+			for(unsigned int i = 0; i < this->parts.size(); i++) {
 				const char* src = this->parts[i].c_str();
 				if (i) {
 					*dst++ = '.';
@@ -117,7 +118,7 @@ class GConfigIdentifier	: public GConfigNode {
 		*/
 		virtual std::ostream& operator<<(std::ostream& os) {
 			os << "GConfigIdentifier[";
-			for(int i = 0; i < this->parts.size(); i++) {
+			for(unsigned int i = 0; i < this->parts.size(); i++) {
 				if (i) {
 					os << ".";
 				}
@@ -191,6 +192,8 @@ class GConfigScalarVal : public GConfigNode {
 						delete(scalar.ival);
 					}
 					break;
+				default:
+					break;
 			}
 		}
 
@@ -254,6 +257,8 @@ class GConfigScalarVal : public GConfigNode {
 				case IDENTIFIER:
 					scalar.ival->visit(visitor);
 					break;
+				default:
+					break;
 			}
 		}
 
@@ -275,6 +280,8 @@ class GConfigScalarVal : public GConfigNode {
 					break;
 				case IDENTIFIER:
 					out << " Identifier: " << *(scalar.ival) << std::endl;
+					break;
+				default:
 					break;
 			}
 			out << ")";
@@ -369,7 +376,7 @@ class GConfigArgumentList : public GConfigNode {
 		*/
 		virtual std::ostream& operator<<(std::ostream& os) {
 			os << "ArgumentList {";
-			for(int i = 0; i < arguments.size(); i++) {
+			for(unsigned int i = 0; i < arguments.size(); i++) {
 				GConfigScalarVal* val = arguments[i];
 				if (val) {
 					os << i << ": ";
@@ -378,7 +385,7 @@ class GConfigArgumentList : public GConfigNode {
 					os << "Entry "<< i << " i vector va tom" << std::endl;
 				}
 			}
-			os << "}" << std::endl;
+			return os << "}" << std::endl;
 			
 		}
 
@@ -400,7 +407,7 @@ class GConfigArgumentList : public GConfigNode {
 		* Send visitoren videre til dine barn
 		*/
 		virtual void visitChildren(GConfigNodeVisitor* visitor) {
-			for(int i = 0; i < arguments.size(); i++) {
+			for(unsigned int i = 0; i < arguments.size(); i++) {
 				arguments[i]->visit(visitor);
 			}
 		}
@@ -494,6 +501,7 @@ public:
 		} else if (arg_list) {
 			return arg_list->getLocation();
 		}
+		return location();
 	}
 		
 	/**
@@ -767,7 +775,7 @@ class GConfigStatementList : public GConfigNode {
 		}
 
 		virtual ~GConfigStatementList() {
-			for(int i = 0; i < statements.size(); i++) {
+			for(unsigned int i = 0; i < statements.size(); i++) {
 				GConfigStatement* stmt = statements[i];
 				if (stmt) {
 					delete stmt;
@@ -781,7 +789,7 @@ class GConfigStatementList : public GConfigNode {
 		*/
 		virtual ostream& operator<<(ostream& os) {
 			os << "GConfigStatementList�{" << std::endl;
-			for(int i = 0; i < statements.size(); i++) {
+			for(unsigned int i = 0; i < statements.size(); i++) {
 				GConfigStatement* stmt = statements[i];
 				if (stmt) {
 					os << *stmt;
@@ -806,7 +814,7 @@ class GConfigStatementList : public GConfigNode {
 		*/
 		virtual void visitChildren(GConfigNodeVisitor* visitor) {
 	//		printf("Visitor i lista\n");
-			for(int i = 0; i < statements.size(); i++) {
+			for(unsigned int i = 0; i < statements.size(); i++) {
 	//			printf("Element %d\n", i);
 				statements[i]->visit(visitor);
 			}
@@ -941,7 +949,7 @@ class GConfigBlockList : public GConfigNode {
 		}
 
 		virtual ~GConfigBlockList() {
-			for(int i = 0; i < blocks.size(); i++) {
+			for(unsigned int i = 0; i < blocks.size(); i++) {
 				GConfigBlock* bl = blocks[i];
 				if (bl) {
 					delete bl;
@@ -977,7 +985,7 @@ class GConfigBlockList : public GConfigNode {
 		*/
 		virtual ostream& operator<<(ostream& os) {
 			os << "GConfigBlockList (" << blocks.size() << ") {" << std::endl;
-			for(int i = 0; i < blocks.size(); i++) {
+			for(unsigned int i = 0; i < blocks.size(); i++) {
 				GConfigBlock* bptr = blocks[i];
 				if (bptr) {
 					os << i << ": ";
@@ -1003,7 +1011,7 @@ class GConfigBlockList : public GConfigNode {
 		* Send visitoren videre til dine barn
 		*/
 		virtual void visitChildren(GConfigNodeVisitor* visitor) {
-			for(int i = 0; i < blocks.size(); i++) {
+			for(unsigned int i = 0; i < blocks.size(); i++) {
 				blocks[i]->visit(visitor);
 			}
 		}

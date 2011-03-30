@@ -15,7 +15,7 @@ namespace dispatch { namespace util {
 
 /**
 * Blocking-queue klasse. Hentet fra nettet, ikke laget selv.
-* @todo Finn ut nøyaktig opphav til denne
+* http://danborn.net/code/blocking_queue.h
 */
 template <class value_type> class BlockingQueue {
 

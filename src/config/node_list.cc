@@ -130,6 +130,47 @@ namespace filter {
 		return false;
 	}
 
+
+} // End namespace filter
+
+void GConfigNodeSearchVisitor::node(GConfigNode* n){
+//	cerr << "Level: "<< level << endl;
+	if (level == 0) {
+//		cerr << "reached level maximum" << endl;
+		return;
+	}
+	if (filter->accept(n)) {
+//		cerr << "Match" << endl;
+		noder.push_back(n);
+	} else {
+//		cerr << "Failed" << endl;
+	}
+
+	level--;
+	n->visitChildren(this);
+	level++;
+}
+
+GConfigNodeList GConfigNodeList::findNodesByName(const string& name, int type) {
+		And navn_og_type(new Name(name), new Type(type));
+		GConfigNodeSearchVisitor vst(&navn_og_type);
+		for(uint i = 0; i < size(); i++) {
+			vst.node(operator[](i));
+		}
+		return vst.getNodeList();
+}
+
+GConfigNodeList GConfigNodeList::findNodesByFilter(filter::NodeFilter* f) {
+		GConfigNodeSearchVisitor vst(f);
+		for(uint i = 0; i < size(); i++) {
+			vst.node(operator[](i));
+		}
+		return vst.getNodeList();
+}
+
+
+//using namespace dispatch::core::eventfilter;
+
 	vector<string> StringVariableHelper::getStrings(GConfigNode* node, string ident, int mark_used = 0) {
 		And find_variables(
 			new Ident(ident, true), 
@@ -179,41 +220,4 @@ namespace filter {
 		return string();
 	}
 
-}
-
-void GConfigNodeSearchVisitor::node(GConfigNode* n){
-//	cerr << "Level: "<< level << endl;
-	if (level == 0) {
-//		cerr << "reached level maximum" << endl;
-		return;
-	}
-	if (filter->accept(n)) {
-//		cerr << "Match" << endl;
-		noder.push_back(n);
-	} else {
-//		cerr << "Failed" << endl;
-	}
-
-	level--;
-	n->visitChildren(this);
-	level++;
-}
-
-GConfigNodeList GConfigNodeList::findNodesByName(const string& name, int type) {
-		And navn_og_type(new Name(name), new Type(type));
-		GConfigNodeSearchVisitor vst(&navn_og_type);
-		for(int i = 0; i < size(); i++) {
-			vst.node(operator[](i));
-		}
-		return vst.getNodeList();
-}
-
-GConfigNodeList GConfigNodeList::findNodesByFilter(filter::NodeFilter* f) {
-		GConfigNodeSearchVisitor vst(f);
-		for(int i = 0; i < size(); i++) {
-			vst.node(operator[](i));
-		}
-		return vst.getNodeList();
-}
-
-}} // end namespace
+}} // end namespace dispatch::config

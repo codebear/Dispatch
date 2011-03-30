@@ -2,20 +2,27 @@
 #
 #
 CC:=g++
+CCFLAGS:=-Wall -ggdb
 
 LEXER:=lex.yy.cc
-
+LEXER_PRE:=lex.yy.ii
 #
 # Alle objektfilene som skal kompileres i denne katalogen
 #
-all: config.o driver.o config_nodes.o config_y.tab.o lex.yy.o node_list.o node_base.o
+all: config.o driver.o config_nodes.o config_y.tab.o node_list.o node_base.o lexer
 
 
 #
 # Regel som matcher alle objectfiler, og som sier at hver objektfil skal bestå av alle .C og .cc filer med samme navn
 #
-%.o: %.C %.cc %.cpp
-	$(CC) -g -c -o $@ $<
+%.o: %.C 
+	$(CC) $(CCFLAGS) -g -c -o $@ $<
+
+%.o: %.cc
+	$(CC) $(CCFLAGS) -g -c -o $@ $<
+
+%.o: %.cpp
+	$(CC) $(CCFLAGS) -g -c -o $@ $<
 
 #
 # Dependecier videre dersom tilhørende header-filene er endret
@@ -34,17 +41,25 @@ config.cpp: config_y.tab.C
 #
 # Av yacc-fila skal det generes kildekode med bison
 #
+
 config_y.tab.C: config_y.Y
 	bison -v -l -g -d -k config_y.Y
 
+lex.yy.ii: lex.yy.cc
+	$(CC) $(CCFLAGS) -g -c -E -o $@ $<
+
+
+lexer: $(LEXER_PRE) lex.yy.o
 
 #
 # Av lex-fila skal det genereres kildekode med flex
 #
-$(LEXER): config_l.l
-	flex -+ --header-file=config_l.h config_l.l
 
-parser: config_y.tab.C $(LEXER)
+$(LEXER): config_l.l
+	flex -d -+ --header-file=config_l.h config_l.l
+
+
+parser: config_y.tab.C lexer
 
 #
 # Rydde-regler
@@ -60,3 +75,4 @@ clean_bison:
 
 clean_flex:
 	rm lex.yy.cc config_l.h || true
+	rm lex.yy.ii || true

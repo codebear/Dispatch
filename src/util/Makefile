@@ -1,4 +1,5 @@
-CC=g++
+CC:=g++
+CCARGS:=-Wall -ggdb
 
 #
 # Alle objekter som skal kompileres i denne katalogen
@@ -14,10 +15,10 @@ all: $(SRC)
 # alle .cpp filer skal bli objektfiler
 #
 %.o: %.cpp
-	$(CC) -g -c -o $@ $<
+	$(CC) $(CCARGS) -g -c -o $@ $<
 
 #
 # Rydderegler
 #
 clean:
-	rm *.o
+	rm -f *.o

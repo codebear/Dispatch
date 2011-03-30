@@ -54,6 +54,7 @@ namespace fifo {
 		GConfigNodeList::iterator i(treff.begin());
 		out << "Fant følgende fornuftig:" << endl;
 		int cnt = 0;
+		bool retval = false;
 		while ( i != treff.end() ) {
 			/**
 			* Vi kan "trykt" type-caste her, fordi ut fra filter-regelene
@@ -73,6 +74,7 @@ namespace fifo {
 				out << "Fant socket-sti: " << val->getStringValue() << endl;
 				fifo_path = val->getStringValue();
 				val_stat->used(1);
+				retval = true;
 			} else {
 				out << "Fikk noe rart: " << *i << endl;
 			}
@@ -83,7 +85,7 @@ namespace fifo {
 		if (cnt > 0) {
 			node->used(1);
 		}
-		
+		return retval;
 	}
 
 }}}

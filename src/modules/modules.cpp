@@ -1,6 +1,7 @@
 
 #include "modules.h"
 #include "dlfcn.h"
+
 using namespace std;
 using namespace dispatch::config;
 using namespace dispatch::config::filter;
@@ -40,7 +41,7 @@ void ModuleManager::loadModules(parseDriver &drv, vector<ModuleEntry> &modules) 
 			loadModule(mod_so, modules);
 			values[j]->used(1);
 		}
-		load_vars[i]->used(1);
+		var->used(1);
 	}
 
 	loadModulesConfig(drv, modules);
@@ -113,6 +114,7 @@ void ModuleManager::loadModulesConfig(parseDriver &drv, vector<ModuleEntry> &mod
 		if (module->isEventHandler()) {
 			out << name << " confirms it's and event handler" << endl;
 			// Match alle noder som er en variabel med
+			
 			And handler_config_filter(
 				new Type(GConfig::BLOCK), 
 				new Contains(new Contains(new And(
@@ -122,11 +124,8 @@ void ModuleManager::loadModulesConfig(parseDriver &drv, vector<ModuleEntry> &mod
 				))), 
 				new Name("handler")
 			);
-			GConfigNodeList nodes = drv.findNodesByFilter(&handler_config_filter);
-			for(int j = 0; j < nodes.size(); j++) {
-				out << "Found node. Name: " << nodes[j]->getNodeName() << " ident: " << nodes[j]->getFullNodeIdent() << endl;
-				module->scanConfigNode(nodes[j]);	
-			}
+			
+			loadConfigNodesIntoModule(drv, module, &handler_config_filter);
 		}
 		/**
 		* Hvis modulen e en event-source så må vi på leiting etter
@@ -143,15 +142,48 @@ void ModuleManager::loadModulesConfig(parseDriver &drv, vector<ModuleEntry> &mod
 				))), 
 				new Name("listener")
 			);
-			GConfigNodeList nodes = drv.findNodesByFilter(&event_source_config_filter);
-			for(int j = 0; j < nodes.size(); j++) {
-				out << "Found node" << endl;
-				module->scanConfigNode(nodes[j]);	
-			}
-	
+			
+			loadConfigNodesIntoModule(drv, module, &event_source_config_filter);
 		}
 	}
 	out << "Done." << endl;
+}
+
+void ModuleManager::loadConfigNodesIntoModule(parseDriver &drv, DispatchModule* module, NodeFilter* filter) {
+		string name = module->getModuleName();
+
+		And module_var(
+			new Type(GConfig::VARIABLE),
+			new Ident("module", true)
+		);
+			
+		GConfigNodeList nodes = drv.findNodesByFilter(filter);
+		for(int j = 0; j < nodes.size(); j++) {
+			GConfigBlock* block = dynamic_cast<GConfigBlock*>(nodes[j]);
+//			out << "MARK1" << endl;
+//			out << "Found node. Name: " << block->getNodeName() << " ident: " << block->getFullNodeIdent() << endl;
+			bool res = false;
+			try {
+				res = module->scanConfigNode(block);	
+			} catch (GConfigParseError ex) {
+				err << "Parse error funnet: " << ex.getMessage() << endl;
+			}
+//			out << "MARK2" << endl;
+			if (res) {
+//				out << "Module mottok konfig med glede\n" << endl;
+				GConfigNodeList mod_vars = block->getStatementList()->findNodesByFilter(&module_var);
+				GConfigNodeList::iterator mod_var_it;
+				for (mod_var_it = mod_vars.begin(); mod_var_it != mod_vars.end(); mod_var_it++) {
+//					out << "Merker node som brukt: " << (*mod_var_it) << endl;
+					(*mod_var_it)->used(1);
+				}
+				block->used(1);
+//			} else {
+//				out << "Module ville ikke ha konfig" << endl;
+			}
+//			out << "MARK3" << endl;
+		}
+	
 }
 
 }} // end namespace

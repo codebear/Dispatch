@@ -1,4 +1,5 @@
-CC=g++
+CC:=g++
+CCARGS:=-Wall -ggdb
 
 #
 # Alle objekter som skal kompileres i denne katalogen
@@ -9,15 +10,17 @@ SRC=EventQueue.o StreamEventListener.o DispatchMain.o SigHandler.o StreamEventHa
 # Defaultregelen, alt som havner her skal kompileres
 #
 all: $(SRC)
+	$(MAKE) -C eventfilter
 
 #
 # alle .cpp filer skal bli objektfiler
 #
 %.o: %.cpp
-	$(CC) -g -c -o $@ $<
+	$(CC) $(CCFLAGS) -g -c -o $@ $<
 
 #
 # Rydderegler
 #
 clean:
-	rm *.o
+	rm -f *.o
+	$(MAKE) -C eventfilter clean

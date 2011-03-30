@@ -1,15 +1,19 @@
-CC=g++
+CC:=g++
+CCARGS:=-Wall -ggdb
 
 
 all: config_sub core_sub modules_sub util_sub dispatch
 
+fresh: clean all
+
 %.o: %.cpp
-	$(CC) -c -g -o $@ $<
+	$(CC) $(CCARGS) -c -g -o $@ $<
 
 %.cpp: %.h %.H
  
 dispatch: dispatch.o core config util
-	g++ -g -rdynamic -o dispatch -lpthread -ldl *.o core/*.o config/*.o util/*.o modules/*.o 
+	$(CC) $(CCARGS) -g -rdynamic -o dispatch -lpthread -ldl -lboost_regex *.o core/*.o core/eventfilter/*.o config/*.o util/*.o modules/*.o 
+	$(MAKE) -C modules dynamic_modules
 
 config_sub:
 	$(MAKE) -C config
@@ -25,7 +29,7 @@ modules_sub:
 
 
 clean: sub_clean memcheck_clean
-	rm *.o dispatch 
+	rm -f *.o dispatch 
 
 sub_clean: 
 	$(MAKE) -C config clean
@@ -45,5 +49,5 @@ memcheck:
 	valgrind --log-file=leaklog --leak-check=full ./dispatch
 
 memcheck_clean:
-	rm leaklog.*
+	rm -f leaklog.*
 

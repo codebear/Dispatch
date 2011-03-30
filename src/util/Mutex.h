@@ -30,6 +30,8 @@ public:
 	* Lås opp
 	*/
 	bool unlock();
+	
+	pthread_mutex_t* getHandle();
 };
 
 /**
@@ -59,8 +61,9 @@ template <class T_CLASS, class T_ARG>
 int synchronize(Mutex* m, TSpecificFunctor<T_CLASS, T_ARG>* f, T_ARG arg) {
 	if (m->lock()) {
 		f(arg);
-		m->unlock();
+		return m->unlock();
 	}
+	return 0;
 }
 
 /**
@@ -70,8 +73,9 @@ template <class T_CLASS>
 int synchronize(Mutex* m, TSpecificFunctor<T_CLASS, void*>* f) {
 	if (m->lock()) {
 		f();
-		m->unlock();
+		return m->unlock();
 	}
+	return 0;
 }
 
 

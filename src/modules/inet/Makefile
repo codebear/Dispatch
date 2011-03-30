@@ -14,4 +14,4 @@ ineteventlistener.so: InetEventSourceModule.o	InetStreamListener.o InetStreamCon
 
 
 clean:
-	rm *.o *.so
+	rm -f *.o *.so

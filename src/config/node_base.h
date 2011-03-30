@@ -13,6 +13,8 @@ using namespace std;
 namespace dispatch {
 namespace config {
 
+typedef unsigned int uint;
+
 class GConfigAutoreleasePool;
 
 /**

@@ -95,6 +95,11 @@ public:
 	* Godta en tilkobling
 	*/
 	void acceptConnection(int socket);
+	
+	/**
+	* Hent ut event-queue
+	*/
+	EventQueue* getEventQueue();
 };
 
 }}}

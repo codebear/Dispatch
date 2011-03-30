@@ -14,4 +14,4 @@ inotify.so: INotifyModule.o INotifyListener.o $(MODULE_CORE)
 
 
 clean:
-	rm *.o *.so
+	rm -f *.o *.so

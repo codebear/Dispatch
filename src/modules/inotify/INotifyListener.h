@@ -3,6 +3,7 @@
 #include <vector>
 #include <map>
 #include "../../util/NameTimeInserter.h"
+#include "../DispatchModule.h"
 
 using namespace std;
 using namespace dispatch::util;
@@ -18,6 +19,8 @@ namespace inotify {
 		* Liste over stiene som skal overvåkes
 		*/
 		vector<string> watch_paths;
+		
+		DispatchModule* module;
 	protected:
 		/**
 		* Hjelpemetode for å kaste int til string
@@ -29,7 +32,7 @@ namespace inotify {
 		*/
 		string namesForMask(int mask);
 	public:
-		INotifyListener();
+		INotifyListener(DispatchModule* mod);
 		~INotifyListener();
 		
 		/**
@@ -37,6 +40,7 @@ namespace inotify {
 		*/
 		virtual string getName();
 		
+		DispatchModule* getModule();
 		/**
 		* Legg til en sti til overvåkning
 		*/

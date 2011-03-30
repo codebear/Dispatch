@@ -13,8 +13,11 @@
 #include "../config/config.h"
 #include "../util/FilteringStreamBuf.h"
 #include "../util/NameTimeInserter.h"
+#include "../core/QueueProvider.h"
 using namespace std;
+using namespace dispatch;
 using namespace dispatch::util;
+using namespace dispatch::config;
 namespace dispatch {
 namespace module {
 
@@ -22,7 +25,11 @@ namespace module {
 /**
 * Basisklasse for pluggbare moduler i systemet. Denne er abstrakt (må subklasses).
 */
-class DispatchModule : public NameTimeTaggingOutputSet {
+class DispatchModule : 
+	public NameTimeTaggingOutputSet,
+	public QueueProvider {
+private:
+	QueueProvider* queue_provider;
 public:
 
 /*	NameTimeTaggedOutput out;
@@ -68,6 +75,12 @@ public:
 	* Fremtidig metode, ikke i bruk enda.
 	*/
 	//virtual bool isServiceHandler() = 0;
+	
+	void setQueueProvider(QueueProvider* qp);
+	
+	QueueProvider* getQueueProvider();
+	
+	EventQueue* getEventQueue();
 	
 	/**
 	* First-stage oppstart av modulen. Skal finne ut av konfig o.l.

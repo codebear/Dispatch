@@ -78,7 +78,6 @@ typedef int flex_int32_t;
 typedef unsigned char flex_uint8_t; 
 typedef unsigned short int flex_uint16_t;
 typedef unsigned int flex_uint32_t;
-#endif /* ! C99 */
 
 /* Limits of integral types. */
 #ifndef INT8_MIN
@@ -109,6 +108,8 @@ typedef unsigned int flex_uint32_t;
 #define UINT32_MAX             (4294967295U)
 #endif
 
+#endif /* ! C99 */
+
 #endif /* ! FLEXINT_H */
 
 /* %endif */
@@ -118,6 +119,7 @@ typedef unsigned int flex_uint32_t;
 #include <iostream> 
 #include <errno.h>
 #include <cstdlib>
+#include <cstdio>
 #include <cstring>
 /* end standard C++ headers. */
 /* %endif */
@@ -189,7 +191,15 @@ typedef unsigned int flex_uint32_t;
 
 /* Size of default input buffer. */
 #ifndef YY_BUF_SIZE
+#ifdef __ia64__
+/* On IA-64, the buffer size is 16k, not 8k.
+ * Moreover, YY_BUF_SIZE is 2*YY_READ_BUF_SIZE in the general case.
+ * Ditto for the __ia64__ case accordingly.
+ */
+#define YY_BUF_SIZE 32768
+#else
 #define YY_BUF_SIZE 16384
+#endif /* __ia64__ */
 #endif
 
 /* The state buf must be large enough to hold one state per character in the main buffer.
@@ -509,8 +519,8 @@ static yyconst flex_int32_t yy_rule_can_match_eol[20] =
 
 static yyconst flex_int16_t yy_rule_linenum[19] =
     {   0,
-       59,   60,   61,   62,   63,   64,   65,   66,   67,   68,
-       71,   76,   80,   84,   88,  104,  108,  112
+       79,   80,   81,   82,   83,   84,   85,   86,   87,   88,
+       91,   96,  100,  104,  108,  124,  128,  132
     } ;
 
 /* The intent behind this definition is that it'll catch
@@ -524,6 +534,7 @@ static yyconst flex_int16_t yy_rule_linenum[19] =
 #line 3 "config_l.l"
 
 #include "config_nodes.h"
+#include "pre_driver.h"
 #include "config_y.tab.H"
 #include "driver.h"
 
@@ -549,13 +560,31 @@ int colnum;
 */
 
 
-#line 44 "config_l.l"
+#line 45 "config_l.l"
 	
-#define YY_USER_ACTION {yylloc->begin.line = yylineno; yylloc->begin.column = colnum; colnum=colnum+yyleng; yylloc->end.column=colnum; yylloc->end.line = yylineno;}
+#define YY_USER_ACTION { \
+		yylloc->end.line = yylloc->begin.line = yylineno; \
+		yylloc->begin.column = colnum; \
+		yylloc->end.column = colnum + yyleng; \
+		do { \
+			int _nl_i;\
+			int _nl_r = 0; \
+			for ( _nl_i = 0; _nl_i < yyleng; ++_nl_i ) {\
+				if ( yytext[_nl_i] == '\n' ) { \
+					++(yylloc->end.line);\
+					yylloc->end.column = 0; \
+					_nl_r = yyleng - _nl_i; \
+				} \
+			} \
+			if (_nl_r) {\
+				yylloc->end.column = _nl_r; \
+			} \
+		}while(0); \
+	}
 
 /* #define YY_USER_ACTION  yylloc->columns(yyleng); */
 
-#line 559 "lex.yy.cc"
+#line 588 "lex.yy.cc"
 
 #define INITIAL 0
 #define CONFIG 1
@@ -614,7 +643,12 @@ static int yy_flex_strlen (yyconst char * );
 
 /* Amount of stuff to slurp up with each read. */
 #ifndef YY_READ_BUF_SIZE
+#ifdef __ia64__
+/* On IA-64, the buffer size is 16k, not 8k */
+#define YY_READ_BUF_SIZE 16384
+#else
 #define YY_READ_BUF_SIZE 8192
+#endif /* __ia64__ */
 #endif
 
 /* Copy whatever the last rule matched to the standard output. */
@@ -714,15 +748,16 @@ YY_DECL
 	register int yy_act;
     
 /* %% [7.0] user's declarations go here */
-#line 52 "config_l.l"
+#line 71 "config_l.l"
 
 
-	colnum = 0;
+//	colnum = 0;
+//	std::cout << "Setting colnum to zero" << std::endl;
 	BEGIN CONFIG;
 	yylloc->step();
 
 
-#line 726 "lex.yy.cc"
+#line 761 "lex.yy.cc"
 
 	if ( !(yy_init) )
 		{
@@ -843,57 +878,57 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 59 "config_l.l"
+#line 79 "config_l.l"
 { return token::T_LBRACE; }
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 60 "config_l.l"
+#line 80 "config_l.l"
 { return token::T_RBRACE; }
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 61 "config_l.l"
+#line 81 "config_l.l"
 { return token::T_LPARAN; }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 62 "config_l.l"
+#line 82 "config_l.l"
 { return token::T_RPARAN; }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 63 "config_l.l"
+#line 83 "config_l.l"
 { return token::T_LBRACKET; }
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 64 "config_l.l"
+#line 84 "config_l.l"
 { return token::T_RBRACKET; }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 65 "config_l.l"
+#line 85 "config_l.l"
 { return token::T_DOT; }
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 66 "config_l.l"
+#line 86 "config_l.l"
 { return token::T_ASSIGN; }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 67 "config_l.l"
+#line 87 "config_l.l"
 { return token::T_STMT_TERM; }
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 68 "config_l.l"
+#line 88 "config_l.l"
 { return token::T_COMMA; }
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 71 "config_l.l"
+#line 91 "config_l.l"
 {
 									yylval->double_val = atof(yytext);
 									return token::T_DOUBLE;
@@ -901,7 +936,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 76 "config_l.l"
+#line 96 "config_l.l"
 { 
 									yylval->long_val = atol(yytext);
 									return token::T_LONG;
@@ -909,7 +944,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 80 "config_l.l"
+#line 100 "config_l.l"
 {
 										yylval->str_val = strdup(yytext);
 										return token::T_STRING;
@@ -918,7 +953,7 @@ YY_RULE_SETUP
 case 14:
 /* rule 14 can match eol */
 YY_RULE_SETUP
-#line 84 "config_l.l"
+#line 104 "config_l.l"
 {
 										return token::T_WHITESPACE;
 							}
@@ -926,7 +961,7 @@ YY_RULE_SETUP
 case 15:
 /* rule 15 can match eol */
 YY_RULE_SETUP
-#line 88 "config_l.l"
+#line 108 "config_l.l"
 {
 
 										int t_len = yyleng; //strlen(yytext);
@@ -945,30 +980,29 @@ YY_RULE_SETUP
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 104 "config_l.l"
+#line 124 "config_l.l"
 {
 							BEGIN COMMENT;
 						}
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 108 "config_l.l"
+#line 128 "config_l.l"
 {
 							BEGIN CONFIG;
 						}
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 112 "config_l.l"
-{
-						}
+#line 132 "config_l.l"
+{}
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 114 "config_l.l"
+#line 134 "config_l.l"
 ECHO;
 	YY_BREAK
-#line 972 "lex.yy.cc"
+#line 1006 "lex.yy.cc"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(CONFIG):
 case YY_STATE_EOF(COMMENT):
@@ -2027,7 +2061,7 @@ void yyfree (void * ptr )
 
 /* %ok-for-header */
 
-#line 114 "config_l.l"
+#line 134 "config_l.l"
 
 
 namespace dispatch {
@@ -2052,3 +2086,4 @@ int configFlexLexer::yywrap() {
 	return 0;
 	// void
 }
+

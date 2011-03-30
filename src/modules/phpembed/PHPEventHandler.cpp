@@ -7,7 +7,7 @@ namespace dispatch {
 namespace module {
 namespace phpembed {
 
-	PHPEventHandler::PHPEventHandler() {
+	PHPEventHandler::PHPEventHandler() : filter(NULL) {
 	
 	}
 	
@@ -26,6 +26,8 @@ namespace phpembed {
 			php_handler.load((*i).c_str());
 		}
 		
+		filter = EventFilterHelper::initializeEventFilter(config);
+		
 		if (klasse.length() && metode.length()) {
 			/**
 			* Klassenavn deklarert
@@ -43,6 +45,13 @@ namespace phpembed {
 			handler_function = funksjon;
 		}
 	}
+	
+	PHPEventHandler::~PHPEventHandler() {
+		if (filter) {
+			delete filter;
+		}
+	}
+	
 		
 	bool PHPEventHandler::isValid() {
 		return true;
@@ -53,7 +62,18 @@ namespace phpembed {
 			cerr << "Mangler handler function for PHP" << endl;
 			return;
 		}
+		if (filter != NULL) {
+			/**
+			* Skip events som ikke matcher
+			*/ 
+			cerr << "Fant filter, sjekker om eventen matcher." << endl;
+			if (!filter->match(e)) {
+				cerr << "Event matchet ikke, avbryter." << endl;
+				return;
+			}
+		}
 		map<string,string> parms = e->getParameters();
+		cerr << "Handterer eventen." << endl;
 		_innerHandleMap(parms);
 	}
 

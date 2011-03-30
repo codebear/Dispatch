@@ -60,6 +60,7 @@ public:
 	* Kalles når klienten kobler fra
 	*/
 	void disconnected();
+	
 };
 
 }}} // namespace

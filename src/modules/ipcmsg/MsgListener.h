@@ -10,7 +10,7 @@ namespace dispatch { namespace module { namespace ipcmsg {
 /**
 * Melding mottat på køen
 */
-class Msg {
+class IPCMsg {
 	bool valid;
 	size_t content_length;
 public:
@@ -47,12 +47,12 @@ public:
 	/**
 	* En melding instansiert med tom-konstruktoren er ikke gyldig
 	*/
-	Msg() : valid(false) {};
+	IPCMsg() : valid(false) {};
 	
 	/**
 	* Instansier en melding med dataene lest fra ipc-køen
 	*/
-	Msg(msg_type m, size_t len) : msg(m), valid(true), content_length(len) {};
+	IPCMsg(msg_type m, size_t len) : msg(m), valid(true), content_length(len) {};
 	
 	/**
 	* Les ut meldings-innholdet som et string-objekt
@@ -62,25 +62,31 @@ public:
 		buf.write(msg.content, content_length);
 		return buf.str();
 	}
+	
+	int getType() {
+		return msg.type;
+	}
 };
 
 /**
 * Meldings-kø-lytter 
 */
-class MsgListener : public NameTimeTaggingOutputSet, public Thread {
+class IPCMsgListener : public NameTimeTaggingOutputSet, public Thread {
 	StreamEventHandler handler;
-	MsgQueue<Msg>* queue;
+	MsgQueue<IPCMsg>* m_queue;
+	EventQueue* e_queue;
 	long type;
 public:
 	/**
 	* Køen som skal lyttes fra, og om den skal filtere på meldingstype
 	*/
-	MsgListener(MsgQueue<Msg>*queue, long t = 0);
+	IPCMsgListener(MsgQueue<IPCMsg>*m_queue, EventQueue* e_queue, long t = 0);
+	
 
 	/**
 	* Navn på tråden
 	*/
-	string getName() { return "MsgListener"; }
+	string getName() { return "IPCMsgListener"; }
 
 	/**
 	* Start opp

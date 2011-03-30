@@ -23,5 +23,9 @@ bool Mutex::unlock() {
 	return 0 == pthread_mutex_unlock(&lock_handle);
 }
 
+pthread_mutex_t* Mutex::getHandle() {
+	return &lock_handle;
+}
+
 
 }} // end namespace

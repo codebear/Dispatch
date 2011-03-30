@@ -29,6 +29,19 @@ namespace dispatch { namespace core {
 	{
 		handler = new StreamEventHandler();	
 	}
+	
+	StreamEventListener::StreamEventListener(string name, EventQueue* queue) : 
+		Thread(name),
+		NameTimeTaggingOutputSet(cout.rdbuf(), cerr.rdbuf(), clog.rdbuf(), cerr.rdbuf()) 
+	{
+		handler = new StreamEventHandler(queue);	
+	}
+	
+	StreamEventListener::StreamEventListener(EventQueue* queue) : 
+		NameTimeTaggingOutputSet(cout.rdbuf(), cerr.rdbuf(), clog.rdbuf(), cerr.rdbuf()) 
+	{
+		handler = new StreamEventHandler(queue);	
+	}
 
 	StreamEventListener::~StreamEventListener() {
 		delete handler;

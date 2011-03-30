@@ -377,6 +377,9 @@ namespace filter {
 		virtual bool accept(GConfigNode* n);	
 	};
 	
+
+} // end namespace filter
+
 	/**
 	* Hjelpeklasse som henter ut string-verdier fra variabel-deklarasjoner i en blokk
 	*/
@@ -393,7 +396,6 @@ namespace filter {
 		static string getString(GConfigNode* node, string ident, int mark_used, bool strict);
 	};
 
-} // end namespace filter
 
 } // end namespace config
 } // end namespace dispatch

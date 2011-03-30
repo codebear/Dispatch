@@ -1,8 +1,14 @@
+CC:=g++
+CCARGS:=-Wall -ggdb
 
-all: modules.o execute_sub fifo_sub phpembed_sub inotify_sub inet_sub ipcmsg_sub
+all: modules.o DispatchModule.o
+
+dynamic_modules: execute_sub fifo_sub inotify_sub inet_sub ipcmsg_sub
+
+## phpembed_sub 
 
 %.o: %.cpp
-	$(CC) -c -g -o $@ $<
+	$(CC) $(CCARGS) -c -g -o $@ $<
 
 %.cpp: %.h %.H
 
@@ -25,7 +31,7 @@ ipcmsg_sub:
 	$(MAKE) -C ipcmsg
 
 clean:
-	rm *.o
+	rm -f *.o
 	$(MAKE) -C phpembed clean
 	$(MAKE) -C inotify clean
 	$(MAKE) -C fifo clean

@@ -4,6 +4,7 @@
 #include "DispatchModule.h"
 #include "../config/driver.h"
 #include "../config/config_nodes.h"
+#include "../config/node_list.h"
 #include <vector>
 using namespace std;
 using namespace dispatch::config;
@@ -77,6 +78,12 @@ namespace module {
 		* Overfør konfigurasjon til moduler
 		*/
 		void loadModulesConfig(parseDriver &drv, vector<ModuleEntry> &modules);
+
+		/**
+		* Load Config nodes into a single module
+		*/
+		void loadConfigNodesIntoModule(parseDriver &drv, DispatchModule* module, filter::NodeFilter* filter);
+
 	};
 }} // end namespace
 

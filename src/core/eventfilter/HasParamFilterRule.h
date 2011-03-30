@@ -5,11 +5,20 @@
 #include <string>
 namespace dispatch { namespace core { namespace eventfilter {
 
+/**
+* Filtrer ut eventer ut fra at et parameter eksisterer
+*/
 class HasParamFilterRule : public EventFilterRule {
 	string param;
 public:
-	HasParamFilterRule(string s);
+	/**
+	* Initialiser med konfig-noden som definerer den
+	*/
+	HasParamFilterRule(GConfigFunctionStatement* node);
 	
+	/**
+	* Prøv regelen mot en event
+	*/
 	virtual bool match(Event* evnt);
 
 };

@@ -13,7 +13,7 @@ namespace dispatch { namespace core {
 * Metodene kan ikke intermixes fra forskjellige streamer på en instans av dette objektet.
 */
 class StreamEventHandler {
-	Eventqueue* queue;
+	EventQueue* queue;
 	Event* working_event;
 	string rest_buffer;
 public:
@@ -22,12 +22,17 @@ public:
 	/**
 	* Konstruer med en kø for leveranse
 	*/
-	StreamEventHandler(Eventqueue*);
+	StreamEventHandler(EventQueue*);
 	
 	/**
 	* Peker til kø eventene skal leveres til
 	*/
-	void setEventQueue(Eventqueue*);
+	void setEventQueue(EventQueue*);
+	
+	/**
+	* Hent ut køn som skal leses fra
+	*/
+	virtual EventQueue* getEventQueue();
 	
 	/**
 	* Håndter en chunk av en stream. Kan være bare en del av en eller flere eventer.

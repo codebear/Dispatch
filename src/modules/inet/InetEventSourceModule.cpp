@@ -54,20 +54,29 @@ namespace inet {
 		vector<string> hosts = StringVariableHelper::getStrings(node, "bind", 1);
 		vector<string>::iterator port;
 		vector<string>::iterator host;
+		
+		bool retval = false;
 		for(port = ports.begin(); port != ports.end(); port++) {
+			/**
+			* @TODO Dette bør vel gjøres i preInitialize?
+			*/
+			
 			/**
 			* Hvis ingen hoster, så binder vi til alt
 			*/
 			if (hosts.empty()) {
 				log << "Binder til [*]:" << *port << endl;
 				inet_listeners.push_back(new InetStreamListener(this, "", *port));
+				retval = true;
 			} else {
 				for(host = hosts.begin(); host != hosts.end(); host++) {
 					log << "Binder til [" << *host << "]:" << *port << endl;
 					inet_listeners.push_back(new InetStreamListener(this, *host, *port));
+					retval = true;
 				}
 			}
 		}
+		return retval;
 	}
 
 }}}

@@ -13,14 +13,19 @@ using namespace std;
 namespace dispatch {
 namespace module {
 namespace inotify {
-	INotifyListener::INotifyListener() : 
+	INotifyListener::INotifyListener(DispatchModule* mod) : 
 		Thread("INotifyListener"),
-		NameTimeTaggingOutputSet(cout.rdbuf(), cerr.rdbuf(), clog.rdbuf(), cerr.rdbuf()) {
+		NameTimeTaggingOutputSet(cout.rdbuf(), cerr.rdbuf(), clog.rdbuf(), cerr.rdbuf()),
+		module(mod){
 		
 	}
 	
 	INotifyListener::~INotifyListener() {
 		
+	}
+	
+	DispatchModule* INotifyListener::getModule() {
+		return module;
 	}
 	
 	string INotifyListener::getName() {
@@ -34,19 +39,20 @@ namespace inotify {
 	
 	void INotifyListener::run() {
 		int handle = inotify_init();
-			if (handle < 0) {
-				perror("inotify_init");
-			}
+		if (handle < 0) {
+			err << "inotify_init failed: " << strerror(errno) << endl;
+			return;
+		}
 		vector<string>::iterator path;
 		int mask = IN_MODIFY|IN_MOVED_FROM|IN_MOVED_TO|IN_DELETE|IN_CREATE|IN_DELETE_SELF|IN_ACCESS|IN_ATTRIB;
 		
 		map<int, string> watches;
 		
 		for(path = watch_paths.begin(); path != watch_paths.end(); path++) {
-			err << "Legger til overvåkning av " << *path << endl;
+			dbg << "Legger til overvåkning av " << *path << endl;
 			int w = inotify_add_watch(handle, (*path).c_str(), mask);
 			if (w < 0) {
-				perror("inotify_add_watch");
+				err << "inotify_add_watch: " << (*path) << " failed" << endl;
 			}
 			watches[w] = *path;
 		}
@@ -129,6 +135,8 @@ namespace inotify {
 			/* BUF_LEN too small? */
 		}
 		err << "looping results from read" << endl;
+		
+		EventQueue* queue = getModule()->getEventQueue();
 		while (i < len) {
 			struct inotify_event *event;
 			
@@ -160,7 +168,7 @@ namespace inotify {
 			}
 
 			err << "Queue event" << endl;
-			Eventqueue::instance()->queue(evnt);
+			queue->queue(evnt);
 			err << "Seeking " << EVENT_SIZE+event->len << "bytes into buffer for next event" << endl;
 			i += EVENT_SIZE + event->len;
 		} // end while

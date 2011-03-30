@@ -1,71 +1,34 @@
-#ifndef EXECUTECOMMANDHANDLER_H_
-#define EXECUTECOMMANDHANDLER_H_
+#ifndef _EXECUTE_COMMAND_HANDLER_H
+#define _EXECUTE_COMMAND_HANDLER_H
 
-#include "../DispatchModule.h"
+#include <string>
 
-using namespace dispatch::module;
-namespace dispatch {
-namespace module {
-namespace execute {
+using namespace std;
 
-/**
-* Handler som skal kjøre eksekvere et program eller kommando når den mottar en event
-*/	
-class ExecuteCommandHandler : public DispatchModule
-{
-public:
-	ExecuteCommandHandler();
-	virtual ~ExecuteCommandHandler();
-	
-	/**
-	* Er ikke en eventkilde
-	*/
-	virtual bool isEventSource() {
-		return false;
-	}
-	
-	/**
-	* Er en event handler
-	*/
-	virtual bool isEventHandler() {
-		return true;	
-	}
-	
-	/**
-	* Er ikke en service-handler
-	*/
-	virtual bool isServiceHandler() {
-		return false;	
-	}
-	
-	/**
-	* Modulnavnet
-	*/
-	virtual string getModuleName() {
-		return string("ExecuteCommand");	
-	}
-	
-	
-	/**
-	* 1.step initialisering
-	*/
-	virtual bool preInitialize();
-	
-	/**
-	* Start opp alt
-	*/
-	virtual bool startup();
-	
-	/**
-	* Steng ned
-	*/
-	virtual bool shutdown();
-	
-	/**
-	* Motta konfigurasjon
-	*/
-	virtual bool scanConfigNode(GConfigNode* node);
+namespace dispatch { namespace module { namespace execute {
+
+enum event_pass_t {
+	NONE = 0,
+	PIPE = 1,
+	ARGV = 2,
+	ENV = 3
 };
 
-}}}
-#endif /*EXECUTECOMMANDHANDLER_H_*/
+class ExecuteCommandSpec {
+public:
+	string command;
+	event_pass_t event_passing;
+	
+	ExecuteCommandSpec(string c, string ep);
+	ExecuteCommandSpec(string c, event_pass_t ep);
+};
+
+
+class ExecuteCommandHandler {
+public:
+	ExecuteCommandHandler(ExecuteCommandSpec s);
+};
+
+}}} // end namespace dispatch.module.execute
+
+#endif

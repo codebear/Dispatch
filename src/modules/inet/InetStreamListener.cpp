@@ -57,7 +57,7 @@ InetStreamListener::~InetStreamListener() {
 		
 		struct ::addrinfo hints, *res_list, *res;
 
-		// first, load up address structs with getaddrinfo():
+		// first, 0load up address structs with getaddrinfo():
 
 		memset(&hints, 0, sizeof hints);
 		
@@ -239,6 +239,10 @@ void InetStreamListener::acceptConnection(int socket) {
 		);
 	}
 	connections.push_back(conn);
+}
+
+EventQueue* InetStreamListener::getEventQueue() {
+	return module->getEventQueue();
 }
 
 }}} // end namespace

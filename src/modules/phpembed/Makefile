@@ -31,4 +31,4 @@ phpembedmodule.so: PHPEmbedModule.o PHPEventHandler.o
 
 
 clean:
-	rm *.so *.o
+	rm -f *.so *.o

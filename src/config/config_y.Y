@@ -45,62 +45,62 @@ using namespace ::dispatch::config;
 	/**
 	* Liste med argumenter
 	*/
-	GConfigArgumentList*		gc_argument_list;
+	config::GConfigArgumentList*		gc_argument_list;
 	
 	/**
 	* Argument til en variabeldeklarasjon
 	*/
-	GConfigArgument* 			gc_argument;
+	config::GConfigArgument* 			gc_argument;
 	
 	/**
 	* Identifier node
 	*/
-	GConfigIdentifier*			gc_identifier;
+	config::GConfigIdentifier*			gc_identifier;
 	
 	/**
 	* Variabel-deklarasjon med scalar innhold
 	*/
-	GConfigScalarVal*			gc_scalar_val;
+	config::GConfigScalarVal*			gc_scalar_val;
 	
 	/**
 	* Blokk
 	*/
-	GConfigBlock*				gc_block;
+	config::GConfigBlock*				gc_block;
 	
 	/**
 	* Headeren til en blokk
 	*/
-	GConfigBlockHeader*			gc_block_header;
+	config::GConfigBlockHeader*			gc_block_header;
 	
 	/**
 	* Liste med blokker
 	*/
-	GConfigBlockList*			gc_block_list;
+	config::GConfigBlockList*			gc_block_list;
 	
 	/**
 	* Liste med statements
 	*/
-	GConfigStatementList*		gc_statement_list;
+	config::GConfigStatementList*		gc_statement_list;
 	
 	/**
 	* Generelt statement
 	*/
-	GConfigStatement*			gc_statement;
+	config::GConfigStatement*			gc_statement;
 	
 	/**
 	* Definerings-statement-node
 	*/
-	GConfigDefineStatement*		gc_define;
+	config::GConfigDefineStatement*		gc_define;
 	
 	/**
 	* Variabel-deklarasjonsnode
 	*/
-	GConfigVariableStatement*	gc_variable;
+	config::GConfigVariableStatement*	gc_variable;
 	
 	/**
 	* Funksjons-deklarasjons-node
 	*/
-	GConfigFunctionStatement*	gc_function;
+	config::GConfigFunctionStatement*	gc_function;
 }
 
 
@@ -128,7 +128,7 @@ using namespace ::dispatch::config;
 %type	<gc_identifier>		identifier
 %type	<gc_block>			block
 %type	<gc_block_header>	block_start
-%type	<gc_block_list>		block_list start
+%type	<gc_block_list>		block_list
 %type	<gc_statement_list>	inner_statement_list
 %type	<gc_statement>		inner_statement
 %type	<gc_variable>		variable_assignment
@@ -136,8 +136,12 @@ using namespace ::dispatch::config;
 %type	<gc_function>		function_statement
 
 %initial-action {
+// start
 	// void
- @$.begin.filename = @$.end.filename = new string(driver.getFileName());
+/* @$.begin.filename = @$.end.filename = new string(driver.getFileName());
+ @$.begin.line = @$.end.line = 0;
+ @$.begin.column = @$.end.column = 0;
+*/
 }
 
 %{
@@ -149,7 +153,7 @@ using namespace ::dispatch::config;
 
 %% /* Grammar rules */
 
-start:	block_list { driver.addBlockList($1); }
+start:	block_list { driver.addBlockList($1); } | END
 ;
 
 block_list:	block { $$ = new GConfigBlockList($1); }

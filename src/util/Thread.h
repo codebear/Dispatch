@@ -11,7 +11,40 @@
 #define THREAD_H_
 #include <pthread.h>
 #include <string>
+#include <map>
+//#include "Mutex.h"
+
+using namespace std;
 namespace dispatch {namespace util {
+
+
+class Thread;
+
+class Mutex;
+
+class ThreadCondition {
+	Thread* thread;
+	pthread_cond_t condition;
+	bool _inited;
+	void inline init();
+	Mutex* mutex;
+public:
+	ThreadCondition(Thread* t);
+	
+	virtual ~ThreadCondition();
+	
+	int sleepUntil();
+	
+	int sleepUntil(Mutex* m);
+	
+	int wakeOne();
+	
+	int wakeAll();
+	
+
+};
+
+
 /**
 * Basisklasse for en tråd, Abstrakt.
 * Bassert på posix_thread-biblioteket. Fant ingen C++ wrappere for denne, så lagde en liten en selv.
@@ -70,6 +103,11 @@ class Thread {
 	* Navnet på tråden
 	*/
 	std::string name;
+	
+	map<string,ThreadCondition*> conditions;
+	
+	ThreadCondition* default_condition;
+	
 public:
 	Thread();
 	/**
@@ -123,6 +161,10 @@ public:
 	* Sett navnet på tråden
 	*/
 	virtual void setName(std::string name);
+	
+	ThreadCondition* getCondition();
+	
+	ThreadCondition* getCondition(string key);
 	
 
 	/**

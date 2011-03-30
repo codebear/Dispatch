@@ -3,6 +3,7 @@
 #include <stdexcept>
 #include <string>
 #include <sstream>
+#include "../util/StringHelper.h"
 
 using namespace std;
 
@@ -50,18 +51,22 @@ void Tokenize(const string& str,
 
 
 StreamEventHandler::StreamEventHandler() :
-	working_event(NULL) {
-	setEventQueue(Eventqueue::instance());
+	working_event(NULL),
+	queue(NULL) {
 }
 
-StreamEventHandler::StreamEventHandler(Eventqueue* ev) : 
+StreamEventHandler::StreamEventHandler(EventQueue* ev) : 
 	queue(ev),
 	working_event(NULL) {
 
 }
 
-void StreamEventHandler::setEventQueue(Eventqueue* e) {
+void StreamEventHandler::setEventQueue(EventQueue* e) {
 	queue = e;
+}
+
+EventQueue* StreamEventHandler::getEventQueue() {
+	return queue;
 }
 
 void StreamEventHandler::handleStreamChunk(string chunk, bool complete) {
@@ -150,7 +155,7 @@ void StreamEventHandler::handleStreamLine(string line, bool complete) {
     	* If event is not empty, then we're done with it, so ship it off
 	 	*/
 		if (working_event && !working_event->isEmpty()) {
-   			queue->queue(working_event);
+   			getEventQueue()->queue(working_event);
    			/**
    			* Allocate new event for next round
    			*/
@@ -177,7 +182,9 @@ void StreamEventHandler::handleStreamLine(string line, bool complete) {
     	* Linja e rett formatert
 		*/
 		cout << "Setter parametre [" << line_parts[0] << "]:[" << line_parts[1] << "]" <<endl;
-		working_event->setParameter(line_parts[0], line_parts[1]);
+		string key = string_trim(line_parts[0]);
+		string value = string_trim(line_parts[1]);
+		working_event->setParameter(key, value);
 	} else {
 		/**
 		* Linja e skeivt formatert. What to do?
@@ -187,7 +194,7 @@ void StreamEventHandler::handleStreamLine(string line, bool complete) {
 	
 	if (complete) {
 		if (!working_event->isEmpty()) {
-			queue->queue(working_event);
+			getEventQueue()->queue(working_event);
 		}
 		working_event = NULL;
 	}

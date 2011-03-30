@@ -34,13 +34,17 @@ void Event::clearParameter(string key) {
 	parameters.erase(key);
 }
 
-Eventqueue::Eventqueue() : 
+bool Event::hasParameter(string key) {
+	return parameters.count(key) > 0;
+}
+
+EventQueue::EventQueue() : 
 	NameTimeTaggingOutputSet(cout.rdbuf(), cerr.rdbuf(), clog.rdbuf(), cerr.rdbuf()) {
 
 }
 
 
-void Eventqueue::startListener() {
+void EventQueue::startListener() {
 	err << "Event listener starting..." << endl;
 	Event* evnt;
 	while(front(evnt) == 0) {
@@ -50,6 +54,10 @@ void Eventqueue::startListener() {
 		*/
 		vector<EventHandler*>::iterator h_iter;
 		for(h_iter = handlers.begin(); h_iter != handlers.end(); h_iter++) {
+			/**
+			* Sender av gårde til handler
+			*/
+			err << "Sender ut til handler." << endl;
 			(*h_iter)->handleEvent(evnt);
 		}
 		delete evnt;
@@ -57,25 +65,31 @@ void Eventqueue::startListener() {
 	}
 }
 
-void Eventqueue::stopListener() {
+void EventQueue::stopListener() {
 	signal_done();
 }
 /*
-void Eventqueue::run() {
+void EventQueue::run() {
 	startListener();
 }
 
-void Eventqueue::stop() {
+void EventQueue::stop() {
 	signal_done();
 	this->Thread::stop();
 }
 
 */
-Eventqueue* Eventqueue::_instance = NULL;
+//EventQueue* EventQueue::_instance = NULL;
 
 
-void Eventqueue::registerHandler(EventHandler* handler) {
+void EventQueue::registerHandler(EventHandler* handler) {
 	handlers.push_back(handler);
 }
+
+ThreadedEventQueue::ThreadedEventQueue() {
+
+}
+//void ThreadedEventQueue::registerHandler(EventHandler* handler) {}
+
 
 } // end namespace

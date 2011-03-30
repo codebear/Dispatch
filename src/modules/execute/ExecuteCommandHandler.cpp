@@ -1,44 +1,30 @@
+
+
 #include "ExecuteCommandHandler.h"
-using namespace dispatch::module;
-namespace dispatch {
-namespace module {
-namespace execute {
 
-ExecuteCommandHandler::ExecuteCommandHandler()
-{
-}
+namespace dispatch { namespace module { namespace execute {
 
-ExecuteCommandHandler::~ExecuteCommandHandler()
-{
-}
-
-bool ExecuteCommandHandler::preInitialize() {
-	return true;
-}
-
-bool ExecuteCommandHandler::startup() {
-	return false;
-}
-
-bool ExecuteCommandHandler::shutdown() {
-	return false;
-}
-
-bool ExecuteCommandHandler::scanConfigNode(GConfigNode* node) {
-	cout << "ExecuteCommandHandler: Bedt om å scan en config-node:" << node << endl;
-	return true;
-}
-
-}}}
-
-extern "C" {
-
-	extern dispatch::module::DispatchModule* initialize_dispatch_module() {
-		return new dispatch::module::execute::ExecuteCommandHandler();
+ExecuteCommandSpec::ExecuteCommandSpec(string c, string ep) {
+	command = c;
+	if (ep == "pipe") {
+		event_passing = PIPE;
+	} else if(ep == "argv") {
+		event_passing = ARGV;
+	} else if (ep == "ENV") {
+		event_passing = ENV;
+	} else {
+		event_passing = NONE;
 	}
+}
 
-	extern void destroy_dispatch_module(dispatch::module::DispatchModule* ptr) {
-		delete ptr;
-	}
+ExecuteCommandSpec::ExecuteCommandSpec(string c, event_pass_t ep) {
+	command = c;
+	event_passing = ep;
+}
+
+
+ExecuteCommandHandler::ExecuteCommandHandler(ExecuteCommandSpec spec) {
 
 }
+
+}}} // end namespace dispatch.module.execute

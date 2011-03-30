@@ -8,6 +8,7 @@
 #include <poll.h>
 #include "Mutex.h"
 #include "Singleton.h"
+#include "NameTimeInserter.h"
 
 
 using namespace std;
@@ -98,7 +99,10 @@ public:
 /**
 * implementasjon av en fd-monitor
 */
-class _FDMonitor_impl : public Thread {
+class _FDMonitor_impl : 
+	public Thread,
+	public NameTimeTaggingOutputSet
+{
 private:
 	Mutex m_lock;
 	std::map<int, FDMonitorEntry*> monitored_fds;
@@ -115,6 +119,11 @@ public:
 	* Fjern en file-descriptor fra event-tilbakemeldingsarkivet
 	*/
 	bool unregisterFD(int fd);
+	
+	/**
+	* Navn på tråen
+	*/
+	string getName();
 	
 	/**
 	* Kjør monitoren

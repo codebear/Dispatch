@@ -6,12 +6,23 @@
 using namespace std;
 namespace dispatch { namespace module { namespace ipcmsg {
 
+
+class _ListenerSpec {
+public:
+	key_t key;
+	int type;
+	int count;
+
+	_ListenerSpec(key_t k, int t, int c);
+};
+
 /**
 * Modul for mottak av meldinger via SysV IPC Msg-queue
 */
 class IPCMsgModule : public DispatchModule {
-	vector<MsgListener*> listeners;
+	vector<IPCMsgListener*> listeners;
 	void initializeListeners(key_t key, long type, int count);
+	vector<_ListenerSpec*> specs;
 public:
 	/**
 	* Navnet på modulen

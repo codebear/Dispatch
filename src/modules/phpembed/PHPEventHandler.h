@@ -3,11 +3,14 @@
 
 #include "../DispatchModule.h"
 #include "../../core/EventQueue.h"
+#include "../../core/eventfilter/EventFilter.h"
+#include "../../core/eventfilter/EventFilterHelper.h"
 #include <php_stl.h>
 #include "php_compat_fix.h"
 
 
 using namespace dispatch::config;
+using namespace dispatch::core::eventfilter;
 
 namespace dispatch {
 namespace module {
@@ -27,6 +30,11 @@ namespace phpembed {
 		*/
 		string handler_function;
 		
+		/**
+		* Filtrer eventer med dette filteret
+		*/
+		EventFilter* filter;
+		
 		void _innerHandleMap(map<string, string>&parms);
 	public:
 
@@ -35,6 +43,11 @@ namespace phpembed {
 		* Tar en konfig-node som inneholder konfigurasjonen for hvordan denne skal oppføre seg
 		*/
 		PHPEventHandler(GConfigNode* config);
+		
+		/**
+		* Destructor
+		*/
+		virtual ~PHPEventHandler();
 		
 		/**
 		* Er alt iorden

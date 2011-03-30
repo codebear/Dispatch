@@ -3,7 +3,7 @@ namespace dispatch {
 namespace config {
 
 		GConfigArgumentList::~GConfigArgumentList() {
-			for(int i = 0; i < arguments.size(); i++) {
+			for(uint i = 0; i < arguments.size(); i++) {
 				GConfigScalarVal* v = arguments[i];
 				if (v) {
 					delete v;

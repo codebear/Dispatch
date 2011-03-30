@@ -3,20 +3,21 @@
 #include <errno.h>
 namespace dispatch { namespace module { namespace ipcmsg {
 
-MsgListener::MsgListener(MsgQueue<Msg>* q, long t) :
-	Thread("MsgListener"),
+IPCMsgListener::IPCMsgListener(MsgQueue<IPCMsg>* q, EventQueue* e, long t) :
+	Thread("IPCMsgListener"),
 	NameTimeTaggingOutputSet(cout.rdbuf(), cerr.rdbuf(), clog.rdbuf(), cerr.rdbuf()),
-	queue(q),
+	m_queue(q),
+	e_queue(e),
 	type(t) {
 	
 }
 
 
-void MsgListener::run() {
+void IPCMsgListener::run() {
 	int errcnt = 0;
-	while(isRunning() && queue->isValid()) {
+	while(isRunning() && m_queue->isValid()) {
 		out << "Listening for event with type: " << type << endl;
-		Msg m = queue->recvMessage(type);
+		IPCMsg m = m_queue->recvMessage(type);
 		out << "Received message IPCMsg" << endl;
 		if (m.isValid()) {
 			string event = m.getContent();

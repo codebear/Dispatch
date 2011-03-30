@@ -2,6 +2,7 @@
 %{
 
 #include "config_nodes.h"
+#include "pre_driver.h"
 #include "config_y.tab.H"
 #include "driver.h"
 
@@ -42,7 +43,25 @@ int colnum;
 
 %{
 	
-#define YY_USER_ACTION {yylloc->begin.line = yylineno; yylloc->begin.column = colnum; colnum=colnum+yyleng; yylloc->end.column=colnum; yylloc->end.line = yylineno;}
+#define YY_USER_ACTION { \
+		yylloc->end.line = yylloc->begin.line = yylineno; \
+		yylloc->begin.column = colnum; \
+		yylloc->end.column = colnum + yyleng; \
+		do { \
+			int _nl_i;\
+			int _nl_r = 0; \
+			for ( _nl_i = 0; _nl_i < yyleng; ++_nl_i ) {\
+				if ( yytext[_nl_i] == '\n' ) { \
+					++(yylloc->end.line);\
+					yylloc->end.column = 0; \
+					_nl_r = yyleng - _nl_i; \
+				} \
+			} \
+			if (_nl_r) {\
+				yylloc->end.column = _nl_r; \
+			} \
+		}while(0); \
+	}
 
 /* #define YY_USER_ACTION  yylloc->columns(yyleng); */
 
@@ -51,7 +70,8 @@ int colnum;
 
 %% /** Regler for tokenisering **/
 %{
-	colnum = 0;
+//	colnum = 0;
+//	std::cout << "Setting colnum to zero" << std::endl;
 	BEGIN CONFIG;
 	yylloc->step();
 %}
@@ -109,8 +129,8 @@ int colnum;
 							BEGIN CONFIG;
 						}
 
-<COMMENT>(.)			{
-						}
+<COMMENT>(.)			{}
+
 %%
 namespace dispatch {
 namespace config {

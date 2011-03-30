@@ -40,6 +40,12 @@ public:
 	void setParameter(string key, string value);
 	
 	/**
+	* Check if event has the given parameter. If the parameter
+	* exists and has length zero this still returns true.
+	*/
+	bool hasParameter(string key);
+	
+	/**
 	* Hent ut alle parametre
 	*/
 	map<string, string> getParameters();
@@ -72,59 +78,90 @@ public:
 /**
 * Event-køen
 */
-class Eventqueue : public util::BlockingQueue<Event>, public NameTimeTaggingOutputSet {
+class EventQueue : public util::BlockingQueue<Event>, public NameTimeTaggingOutputSet {
 private:
 	/**
 	* Instans for singleton-patternet
 	*/
-	static Eventqueue* _instance;
+//	static EventQueue* _instance;
 	
 	vector<EventHandler*> handlers;
 public:
 
-	Eventqueue();
+	EventQueue();
 
 	/**
 	* Hent ut singleton-instansen av denne
 	*/
-	static Eventqueue* instance() {
+/*	static EventQueue* instance() {
 		if (!_instance) {
-			_instance = new Eventqueue();
+			_instance = new EventQueue();
 		}
 		return _instance;
 	}
-	
+*/	
 	/**
 	* Navnet som vil bli eksponert som navnet på denne tråden
 	*/
 	virtual string getName() {
-		return "Eventqueue";
+		return "ThreadedEventQueue";
 	}
 
 	/**
 	* Legg en event i køen
 	*/
-	void queue(Event* e) {
+	virtual void queue(Event* e) {
 		push(e);
 	}
 
 	/**
 	* Start hovedloopen
 	*/
-	void startListener();
+	virtual void startListener();
 	
 	/**
 	* Be hovedloopen om å stopp etterhvert
 	*/
-	void stopListener();
+	virtual void stopListener();
 		
 	/**
 	* Registrer en event-handler på køen.
 	* Registrerte handlere blir kalt med eventer som kommer ut etter ferden gjennom køen.
 	*/
-	void registerHandler(EventHandler* handler);
+	virtual void registerHandler(EventHandler* handler);
 };
 
+/**
+* Event queue which runs all handling in separate threads
+*/
+class ThreadedEventQueue : public EventQueue {
+private:
+	/**
+	* Instans for singleton-patternet
+	*/
+//	static EventQueue* _instance;
+	
+//	vector<EventHandler*> handlers;
+public:
+
+	ThreadedEventQueue();
+
+	/**
+	* Hent ut singleton-instansen av denne
+	*/
+/*	static EventQueue* instance() {
+		if (!_instance) {
+			_instance = new EventQueue();
+		}
+		return _instance;
+	}*/
+
+/**
+* Registrer ny handler
+*/
+//	virtual void registerHandler(EventHandler* handler);
+
+}; // end class
 
 }
 

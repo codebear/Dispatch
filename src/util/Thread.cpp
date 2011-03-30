@@ -10,15 +10,21 @@
 #include <string>
 #include <sys/prctl.h>
 #include <iostream>
+#include <cstring>
 #include <errno.h>
+#include "Mutex.h"
 
 namespace dispatch { namespace util {
 
-Thread::Thread(std::string n) : name(n) {
+Thread::Thread(std::string n) : 
+	name(n),
+	default_condition(0)
+{
 
 }
 
-Thread::Thread() {
+Thread::Thread() :
+	default_condition(0) {
 //	wrapper = NULL;
 
 }
@@ -27,7 +33,18 @@ Thread::~Thread() {
 /*	if (wrapper) {
 		delete wrapper;
 	}*/
+	if (conditions.size() > 0) {
+		map<string,ThreadCondition*>::iterator conds;
+		for(conds = conditions.begin(); conds != conditions.end(); conds++) {
+			delete (*conds).second;
+		}
+	}
+	if (default_condition) {
+		delete default_condition;
+	}
 }
+
+
 
 void Thread::_global_initialize() {
 	pthread_key_create(&_thread_key, NULL);
@@ -96,7 +113,6 @@ void* Thread::_run(void* thread_wrap_v) {
 	Thread* thread = t_wrap->thread;
 	delete t_wrap;
 	thread->threadInitialize();
-	
 	thread->run();
 	thread->_stopped = true;
 	pthread_exit(NULL);
@@ -132,5 +148,69 @@ void Thread::_actuallySetName() {
 		}
 	}
 }
+
+ThreadCondition* Thread::getCondition(string key) {
+	ThreadCondition* c = conditions[key];
+	if (!c) {
+		c = new ThreadCondition(this);
+		conditions[key] = c;
+	}
+	return c;
+}
+
+ThreadCondition* Thread::getCondition() {
+	if (!default_condition) {
+		default_condition = new ThreadCondition(this);
+	}
+	return default_condition;
+}
+
+/**
+* ThreadConditions
+*/
+ThreadCondition::ThreadCondition(Thread* t) :
+	thread(t),
+	_inited(0),
+	mutex(0)
+{}
+
+ThreadCondition::~ThreadCondition() {
+	if (_inited) {
+		pthread_cond_destroy(&condition);
+		delete mutex;
+	}
+}
+
+
+
+void ThreadCondition::init() {
+	if (_inited) {
+		return;
+	}
+	
+	pthread_cond_init(&condition, NULL);
+	mutex = new Mutex();
+	_inited = 1;
+}
+
+int ThreadCondition::sleepUntil(Mutex* m) {
+	init();
+	return pthread_cond_wait(&condition, m->getHandle());
+}
+
+int ThreadCondition::sleepUntil() {
+	init();
+	mutex->lock();
+	return pthread_cond_wait(&condition, mutex->getHandle());
+}
+
+int ThreadCondition::wakeOne() {
+	return pthread_cond_signal(&condition);
+}
+
+int ThreadCondition::wakeAll() {
+	return pthread_cond_broadcast(&condition);
+}
+
 
 }}

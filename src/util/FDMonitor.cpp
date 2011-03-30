@@ -4,6 +4,7 @@
 #include <iostream>
 #include <errno.h>
 #include <sstream>
+#include <cstring>
 
 using namespace std;
 
@@ -22,7 +23,11 @@ FDMonitorEntry::FDMonitorEntry(int f, short m, FDMonitorCallback* cb) :
 void _FDMonitor_impl::run() {
 	while(this->isRunning()) {
 		if (!this->doIteration()) {
-			cerr << "Polling returnerte false... venter i 0.5sec og prøver igjen" << endl;
+			if (!monitored_fds.size()) {
+				err << "Nothing to listen against, so waiting for something to show up..." << endl;
+				getCondition()->sleepUntil();
+			}
+			err << "Polling "<< monitored_fds.size() << " returnerte false... venter i 0.5sec og prøver igjen" << endl;
 			/**
 			* Dersom den returnere false, så 
 			* venter vi litt, for å unngå en grum-loop
@@ -30,6 +35,10 @@ void _FDMonitor_impl::run() {
 			usleep(500000);
 		}
 	}
+}
+
+string _FDMonitor_impl::getName() {
+	return "FDMonitor";
 }
 
 bool _FDMonitor_impl::registerFD(int fd, short mask, FDMonitorCallback* cb) {
@@ -40,6 +49,7 @@ bool _FDMonitor_impl::registerFD(int fd, short mask, FDMonitorCallback* cb) {
 	}
 	monitored_fds[fd] = new FDMonitorEntry(fd, mask, cb);
 	m_lock.unlock();
+	getCondition()->wakeAll();
 	return true;
 }
 
@@ -82,10 +92,10 @@ bool _FDMonitor_impl::doIteration() {
 	if (!num_fds) {
 		return false;
 	}
-//	cout << "Poller " << num << "fds: " << tmp.str() << endl;
+//	out << "Poller " << num << "fds: " << tmp.str() << endl;
 	int ret = poll(fds, num, timeout);
 	if (ret == -1) {
-		cerr << "Error polling: " << strerror(errno) << endl;
+		err << "Error polling: " << strerror(errno) << endl;
 		return false;
 	}
 	if (ret == 0) {
@@ -97,7 +107,7 @@ bool _FDMonitor_impl::doIteration() {
 	for(int i = 0; i < num; i++) {
 		struct pollfd* cfd = &fds[i];
 		if (cfd->revents == 0) {
-//			cout << cfd->fd << " har ingen eventer, hopper over" << endl;
+//			out << cfd->fd << " har ingen eventer, hopper over" << endl;
 			continue;
 		}
 		FDMonitorEntry* entry = monitored_fds[cfd->fd];
@@ -106,7 +116,7 @@ bool _FDMonitor_impl::doIteration() {
 			* FD må ha blitt fjernet siden sist vi gikk inn i poll...
 			* Da hopper vi glatt over
 			*/
-//			cout << cfd->fd << " har forsvunnet fra overvåkningslista, hopper over." << endl;
+//			out << cfd->fd << " har forsvunnet fra overvåkningslista, hopper over." << endl;
 			continue;
 		}
 		/**
@@ -188,7 +198,7 @@ string FDEvent::getEventNames(short events) {
 
 	
 	int event_cnt = sizeof(event_enum)/sizeof(event_enum[0]);
-	cout << "Leter igjennom " << event_cnt << " elementer etter hvilke som er på" << endl;
+//	out << "Leter igjennom " << event_cnt << " elementer etter hvilke som er på" << endl;
 	int hit_cnt = 0;
 	stringstream buf;
 	for(int i = 0; i < event_cnt; i++) {

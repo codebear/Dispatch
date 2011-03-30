@@ -2,6 +2,7 @@
 #define _FILTERING_STREAM_BUF_H 1
 
 #include <iostream>
+#include <stdio.h>
 
 /*
 * Inspirert fra
@@ -17,7 +18,11 @@ namespace dispatch { namespace util {
 template< class Inserter_T >
 class FilteringOutputStreambuf : public streambuf
 {
-
+	/**
+	* Workaround for something. On another platform(redhat) EOF was defined. Determine whats wrong!
+	*/
+//	static const int EOF = -1;
+	
 public:
 	/**
 	* Konstruktor med Inserter_T instans
@@ -106,16 +111,23 @@ private:
 */
 class TimeStampInserter
 {
+	/**
+	* Workaround for something. On another platform(redhat) EOF was defined. Determine whats wrong!
+	*/
+//	const static int EOF = -1;
 public:
 
 	/**
 	* Prefix-string
 	*/
-	TimeStampInserter(string pref) : prefix(pref), myAtStartOfLine(true) {
+	TimeStampInserter(string pref) : 
+		myAtStartOfLine(true),
+		prefix(pref)
+	{
     	
 	}
 	
-	TimeStampInserter()	: myAtStartOfLine( true ) {
+	TimeStampInserter() : myAtStartOfLine( true ) {
 	
 	}
 
@@ -196,9 +208,9 @@ public:
 	}
 
 private:
-	bool                 myAtStartOfLine ;
-	string prefix;
-	string postfix;
+	bool	myAtStartOfLine;
+	string	prefix;
+	string	postfix;
 };
 
 }}  // end namespace

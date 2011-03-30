@@ -29,6 +29,10 @@ public:
 	*/
 	StreamEventListener(string name);
 	
+	StreamEventListener(string name, EventQueue* q);
+	
+	StreamEventListener(EventQueue* q);
+	
 	virtual ~StreamEventListener();
 
 	/**

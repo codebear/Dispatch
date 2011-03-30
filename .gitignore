@@ -1,6 +1,17 @@
 # Git ignore file
 # bear 1.mai.2010
+
 # Ignore compiled object-files
 *.o
+
 # Ignore compiled shared object files
 *.so
+
+# Ignore log file from yacc
+src/config/config_y.output
+
+# Ignore non-source folders
+etc
+var
+php
+bin

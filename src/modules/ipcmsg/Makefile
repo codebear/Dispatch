@@ -14,4 +14,4 @@ ipcmsglistener.so: IPCMsgModule.o MsgListener.o $(MODULE_CORE)
 
 
 clean:
-	rm *.o *.so
+	rm -f *.o *.so

@@ -1,4 +1,4 @@
-
+#include "config.h"
 #include "driver.h"
 #include <string>
 using namespace std;
@@ -23,7 +23,7 @@ namespace config {
 			};
 
 			const char* token_lookup(config_parser::token_type tok) {
-				for(int i = 0; i < sizeof(_token_number); i++) {
+				for(uint i = 0; i < sizeof(_token_number); i++) {
 					if (_token_number[i] == tok) {
 						return _table[i];
 					}
@@ -39,10 +39,10 @@ namespace config {
 		// Read next token
 		tok = scanner()->lex(s, loc);
 		const char* string_tok = token_lookup(tok);
-/*		std::cout << "Token: " << (string_tok ? string_tok : "(NULL)") << " (" <<
+		std::cout << "Token: " << (string_tok ? string_tok : "(NULL)") << " (" << loc->begin.filename <<": " <<
 			loc->begin.line << ":" << loc->begin.column << " - " <<
 			loc->end.line << ":" << loc->end.column << ")" << std::endl;
-*/
+
 		if (tok == config_parser::token::T_WHITESPACE) {
 //			std::cout << "Skipping whitespace" << std::endl;
 			goto new_token;
@@ -52,10 +52,17 @@ namespace config {
 
 
 	void parseDriver::error(const location& loc, const string& msg) {
-		std::printf("Parse error: %s @ %d:%d-%d:%d\n",
+		std::cout << "Parse error: " << msg << " in " << loc.begin.filename << ":" << loc.begin.line <<
+			"(l:" << loc.begin.line << ",c:" << loc.begin.column <<
+			" <-> l:" << loc.end.line << ",c:" << loc.end.column <<
+			")" << endl;
+/*		std::printf("Parse error: %s in %s:%d (l:%d,c:%d<->l:%d,c:%d)\n",
 			msg.c_str(),
+			loc.begin.filename->c_str(),
+			loc.begin.line,
 			loc.begin.line, loc.begin.column,
-			loc.end.line, loc.end.column);
+			loc.end.line, loc.end.column
+		);*/
 	}
 
 	parseDriver::parseDriver(const string& filename) : _scanner(NULL), _conf_s(NULL) {
@@ -72,7 +79,7 @@ namespace config {
 	}
 	
 	void parseDriver::resetConfigTree() {
-		for(int i = 0; i < blocklists.size(); i++) {
+		for(uint i = 0; i < blocklists.size(); i++) {
 			GConfigBlockList* block_l = blocklists[i];
 			if (block_l) {
 				delete block_l;
@@ -105,7 +112,7 @@ namespace config {
 	}
 
 	void parseDriver::runVisitor(GConfigNodeVisitor* visitor) {
-		for(int i = 0; i < blocklists.size(); i++) {
+		for(uint i = 0; i < blocklists.size(); i++) {
 //			printf("Runs visitor on Elemend %d\n", i);
 			blocklists[i]->visit(visitor);
 		}
@@ -158,7 +165,7 @@ namespace config {
 		if (node != NULL) {
 			cout << "Adding to inner node" << endl;
 			vector<GConfigBlock*> blokker = block->getBlocks();
-			for(int i = 0; i < blokker.size(); i++) {
+			for(uint i = 0; i < blokker.size(); i++) {
 				if (!node->addChildNode(blokker[i])) {
 					throw new GConfigParseError("ParseError, addChildNode did not accept given node");
 				}
@@ -184,7 +191,7 @@ namespace config {
 	}
 
 	void parseDriver::dump() {
-		for(int i = 0; i < blocklists.size(); i++) {
+		for(uint i = 0; i < blocklists.size(); i++) {
 			std::cout << "============= " << i << " =================" << std::endl;
 			std::cout << blocklists[i] << std::endl;
 		}
