@@ -39,20 +39,43 @@ namespace config {
 		// Read next token
 		tok = scanner()->lex(s, loc);
 		const char* string_tok = token_lookup(tok);
-		std::cout << "Token: " << (string_tok ? string_tok : "(NULL)") << " (" << loc->begin.filename <<": " <<
+		std::cout << "Token: " << (string_tok ? string_tok : "(NULL)") << " (";
+		if (loc->begin.filename) {
+			std::cout << *(loc->begin.filename) << ": ";
+		}
+		std::cout <<
 			loc->begin.line << ":" << loc->begin.column << " - " <<
 			loc->end.line << ":" << loc->end.column << ")" << std::endl;
 
-		if (tok == config_parser::token::T_WHITESPACE) {
+		if (tok == config_parser::token::T_WHITESPACE || tok == config_parser::token::T_COMMENT) {
 //			std::cout << "Skipping whitespace" << std::endl;
 			goto new_token;
 		}
 		return tok;
 	}
+	
+	void configScanner::handlePosition(location& loc, char* buf, unsigned int len) {
+		loc.begin.line = line;
+		loc.begin.column = col;
+		for(unsigned int i = 0; i < len; i++) {
+			++col;
+			if (buf[i] == '\n') {
+				++line;
+				col = 0;
+			}
+		}
+		loc.end.line = line;
+		loc.end.column = col;
+	}
+
 
 
 	void parseDriver::error(const location& loc, const string& msg) {
-		std::cout << "Parse error: " << msg << " in " << loc.begin.filename << ":" << loc.begin.line <<
+		std::cout << "Parse error: " << msg << " in ";
+		if (loc.begin.filename) {
+			std::cout  << *(loc.begin.filename) << ":";
+		}
+		std::cout << loc.begin.line <<
 			"(l:" << loc.begin.line << ",c:" << loc.begin.column <<
 			" <-> l:" << loc.end.line << ",c:" << loc.end.column <<
 			")" << endl;
@@ -65,11 +88,18 @@ namespace config {
 		);*/
 	}
 
-	parseDriver::parseDriver(const string& filename) : _scanner(NULL), _conf_s(NULL) {
+	parseDriver::parseDriver(const string& filename) : 
+		_scanner(NULL), 
+		_conf_s(NULL)
+	{
 		files.push(QueuedFile(filename));
 	}
 
-	parseDriver::parseDriver(const string &filename, const string &basename) : _scanner(NULL), _conf_s(NULL) , basedir(basename) {
+	parseDriver::parseDriver(const string &filename, const string &basename) : 
+		_scanner(NULL), 
+		_conf_s(NULL) , 
+		basedir(basename)
+	{
 		files.push(QueuedFile(basedir+"/"+filename));
 	}
 

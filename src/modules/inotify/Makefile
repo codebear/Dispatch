@@ -1,16 +1,19 @@
 
 CC=g++
+CCARGS:=-Wall -ggdb
 
 MODULE_CORE=../DispatchModule.o ../../util/Thread.o ../../core/StreamEventListener.o ../../core/EventQueue.o ../../util/FileStat.o
 
 all: inotify.so
 
-%.o: %.cpp %.h
-	$(CC) -g -c -o $@ $< 
+%.o: %.cpp
+	$(CC) $(CCARGS) -g -c -o $@ $< 
+	
+%.cpp: %.h
 
 
 inotify.so: INotifyModule.o INotifyListener.o $(MODULE_CORE)
-	$(CC) -g -fpic -dynamiclib -shared -single_module -lpthread -rdynamic -o $@  $^
+	$(CC) $(CCARGS) -g -fpic -dynamiclib -shared -single_module -lpthread -rdynamic -o $@  $^
 
 
 clean:

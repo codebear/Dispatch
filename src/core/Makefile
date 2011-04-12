@@ -16,8 +16,9 @@ all: $(SRC)
 # alle .cpp filer skal bli objektfiler
 #
 %.o: %.cpp
-	$(CC) $(CCFLAGS) -g -c -o $@ $<
+	$(CC) $(CCARGS) -g -c -o $@ $<
 
+%.cpp: %.h
 #
 # Rydderegler
 #

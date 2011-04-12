@@ -1,16 +1,19 @@
 
-CC=g++
+CC:=g++
+CCARGS:=-Wall -ggdb
 
 MODULE_CORE=../DispatchModule.o ../../util/Thread.o ../../core/StreamEventListener.o ../../core/EventQueue.o ../../util/FileStat.o ../../util/Mutex.o ../../util/FDMonitor.o
 
 all: ipcmsglistener.so
 
 %.o: %.cpp
-	$(CC) -g -c -o $@ $< 
+	$(CC) $(CCARGS) -g -c -o $@ $< 
+
+%.cpp: %.h
 
 
 ipcmsglistener.so: IPCMsgModule.o MsgListener.o $(MODULE_CORE)
-	$(CC) -g -fpic -dynamiclib -shared -single_module -lpthread -rdynamic -o $@  $^
+	$(CC) $(CCARGS) -g -fpic -dynamiclib -shared -single_module -lpthread -rdynamic -o $@  $^
 
 
 clean:

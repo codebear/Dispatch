@@ -28,6 +28,7 @@ EventFilter::~EventFilter() {
 
 bool EventFilter::addRule(EventFilterRule* rule) {
 	rules.push_back(rule);
+	return true;
 }
 
 bool EventFilter::match(Event* evnt) {

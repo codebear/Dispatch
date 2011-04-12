@@ -25,17 +25,17 @@ void ModuleManager::loadModules(parseDriver &drv, vector<ModuleEntry> &modules) 
 
 	GConfigNodeList load_vars = mod_blocks.findNodesByFilter(&load_filter);
 	
-	for(int i = 0; i < mod_blocks.size(); i ++) {
+	for(uint i = 0; i < mod_blocks.size(); i ++) {
 		mod_blocks[i]->used(1);	
 	}
 	err << "Vars " << load_vars.size() << endl;
 	err << "Loading modules:" << endl;
 	
-	for(int i = 0; i < load_vars.size(); i++) {
+	for(uint i = 0; i < load_vars.size(); i++) {
 		GConfigVariableStatement* var = dynamic_cast<GConfigVariableStatement*>(load_vars[i]);
 		vector<GConfigScalarVal*> values = var->getValues();
 //		cout << "Variable @ " << var << ": " << values.size() << " verdier" << endl;
-		for(int j = 0; j < values.size(); j++) {
+		for(uint j = 0; j < values.size(); j++) {
 			string mod_so = values[j]->getStringValue();
 			err << " ** " << mod_so << " **" << endl;
 			loadModule(mod_so, modules);
@@ -102,7 +102,7 @@ void ModuleManager::loadModule(string mod_file, vector<ModuleEntry> &modules) {
 
 void ModuleManager::loadModulesConfig(parseDriver &drv, vector<ModuleEntry> &modules) {
 	out << "Leter etter config til moduler" << endl;
-	for(int i = 0; i < modules.size(); i++) {
+	for(uint i = 0; i < modules.size(); i++) {
 		DispatchModule* module = modules[i].module;
 		string name = module->getModuleName();
 		out << "MODULE: " << name << endl;
@@ -158,7 +158,7 @@ void ModuleManager::loadConfigNodesIntoModule(parseDriver &drv, DispatchModule* 
 		);
 			
 		GConfigNodeList nodes = drv.findNodesByFilter(filter);
-		for(int j = 0; j < nodes.size(); j++) {
+		for(uint j = 0; j < nodes.size(); j++) {
 			GConfigBlock* block = dynamic_cast<GConfigBlock*>(nodes[j]);
 //			out << "MARK1" << endl;
 //			out << "Found node. Name: " << block->getNodeName() << " ident: " << block->getFullNodeIdent() << endl;

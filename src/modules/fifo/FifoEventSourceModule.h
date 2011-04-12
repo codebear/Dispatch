@@ -15,18 +15,21 @@ namespace module {
 namespace fifo {
 
 /**
+* Bygg om til åstøte flere fifoer
+*/
+/**
 * Modul som kan lese eventer fra en fifo-node i filsystemet
 */
 class FifoEventSourceModule : public DispatchModule {
 	/**
 	* listener handle å lese fra
 	*/
-   	FifoStreamListener fifo_listener;
-   	
-   	/**
-   	* Sti til fifoen som skal leses fra
-   	*/
-   	string fifo_path;
+	vector<FifoStreamListener*> listeners;
+	
+	/**
+	* Sti til fifoen som skal leses fra
+	*/
+//	string fifo_path;
 
 public:
 	FifoEventSourceModule();

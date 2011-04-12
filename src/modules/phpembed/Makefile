@@ -6,8 +6,11 @@ PHPSAPI:=$(PHP)/sapi/embed
 PHPZEND:=$(PHP)/Zend
 PHPTSRM:=$(PHP)/TSRM
 PHPMAIN:=$(PHP)/main
+PHPEMBED_LIB:=/home/bear/src/phpembed/install/lib
 
-CXXFLAGS:= -I $(PHPEMBED) -I $(PHPSAPI) -I $(PHP) -I $(PHPZEND) -I $(PHPTSRM) -I $(PHPMAIN)
+CXXFLAGS:= -I $(PHPEMBED) -I $(PHPSAPI) -I $(PHP) -I $(PHPZEND) -I $(PHPTSRM) -I $(PHPMAIN) -Wall -ggdb
+
+CXXFLAGSL := -L $(PHPEMBED_LIB) -Wall -ggdb
 
 #-I /home/bear/src/phpembed/src -I /usr/local/include/php -I /usr/local/include/php/Zend \
 #	    -I /usr/local/include/php/main -I /usr/local/include/php/TSRM
@@ -27,7 +30,7 @@ all: phpembedmodule.so
 
 
 phpembedmodule.so: PHPEmbedModule.o PHPEventHandler.o
-	$(CC) -g -fpic -dynamiclib -shared -single_module -lpthread -rdynamic -lphpembed -lphp5 -o $@ $^
+	$(CC) $(CXXFLAGSL) -g -fpic -dynamiclib -shared -single_module -lpthread -rdynamic -lphpembed -lphp5 -o $@ $^
 
 
 clean:

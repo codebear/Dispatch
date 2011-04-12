@@ -80,7 +80,7 @@ class GConfigIdentifier	: public GConfigNode {
 		/**
 		* Returner node-ident, som er oss selv. :-)
 		*/
-		virtual string getNodeIdent() {
+		virtual NodeIdent getNodeIdent() {
 			return getStringValue();
 		}
 		
@@ -641,11 +641,11 @@ class GConfigBlockHeader : public GConfigNode {
 		/**
 		* Hent ut node-ident til blokk-headeren (ekvivalent til node-ident for blokka)
 		*/
-		virtual string getNodeIdent() {
+		virtual NodeIdent getNodeIdent() {
 			if (_ident) {
-				return _ident->getStringValue();
+				return NodeIdent(_ident->getStringValue());
 			}
-			return string();
+			return NodeIdent();
 		}
 		/**
 		* Returnere navnet på blokken
@@ -871,11 +871,11 @@ public:
 	/**
 	* Hent ut blokk-ident. Kommer fra en eventuelt blokk-header node under oss
 	*/
-	virtual string getNodeIdent() {
+	virtual NodeIdent getNodeIdent() {
 		if (_head) {
 			return _head->getNodeIdent();
 		}
-		return string();
+		return NodeIdent();
 	}
 
 	/**
@@ -1086,7 +1086,7 @@ public:
 	/**
 	* Hent ut Node identen for denne noden
 	*/
-	virtual string getNodeIdent() {
+	virtual NodeIdent getNodeIdent() {
 		if (fname) {
 			return fname->getNodeIdent();
 		}
@@ -1228,7 +1228,7 @@ class GConfigVariableStatement : public GConfigStatement {
 		/**
 		* Hent ut ident til variabel
 		*/
-		virtual string getNodeIdent();
+		virtual NodeIdent getNodeIdent();
 		
 		/**
 		* Hent ut node-type-id

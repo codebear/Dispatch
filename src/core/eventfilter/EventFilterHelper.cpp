@@ -58,9 +58,9 @@ EventFilterRule* EventFilterHelper::initializeEventFilterRule(GConfigFunctionSta
 	if (node == NULL) {
 		cerr << "Mottok en tom filter-regel" << endl;
 	}
-	cout << "Fant filter med navn: [" << node->getNodeIdent() << "]" << endl;
+	cout << "Fant filter med navn: [" << node->getNodeIdent().getPathStr() << "]" << endl;
 	vector<GConfigScalarVal*> args = node->getArguments();
-	string fname = node->getNodeIdent();
+	NodeIdent fname = node->getNodeIdent();
 	EventFilterRule* rule = NULL;
 	if (fname == "match_param") {
 		rule = new MatchParamFilterRule(node);

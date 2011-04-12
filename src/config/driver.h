@@ -22,6 +22,7 @@
 
 #include "node_base.h"
 #include "config_nodes.h"
+#include "NodeIdent.h"
 //#include "config_y.tab.H"
 
 using namespace std;
@@ -75,6 +76,10 @@ namespace config {
 	* Lex-scanner for konfigurasjonsfiler, arver fra scanneren generert av flex, så denne inneholder bare noen småtteri i tillegg.
 	*/
 	class configScanner : public configFlexLexer {
+	
+	protected:
+		int line;
+		int col;
 	public:
 		/**
 		* Streamen det skal leses fra, og hvor logging skal gå
@@ -87,6 +92,9 @@ namespace config {
 		* @todo få lexeren til å håndtere posisjon i fila rett
 		*/
 		config_parser::token_type lex(config_parser::semantic_type* s, config_parser::location_type* loc);
+		
+		
+		void handlePosition(location& loc, char* buf, unsigned int len);
 	};
 
 	/**
@@ -343,7 +351,6 @@ namespace config {
 		*/
 		virtual void node(GConfigNode* node) {
 			string path = "";
-			int cnt = 0;
 			int node_type = node->getTypeId();
 			GConfigNode* c_node = NULL;
 
@@ -357,20 +364,9 @@ namespace config {
 			cout << "Node[" << GConfig::getTypeName(node->getTypeId()) << "]: ";
 			c_node = node;
 			do {
-				string c_ident = c_node->getNodeIdent();
-				if (c_ident.length()) {
-					if (!path.length()) {
-						path.append(c_node->getNodeIdent());
-					} else {
-						path.insert(0, "/");
-						path.insert(0, c_node->getNodeIdent());
-					}
-				}
-				if (cnt++>100) {
-					cerr << "Breaking loop... this is probably wrong..." << endl;
-					break;
-				}
-			} while( (c_node = c_node->getParentNode()) );
+				NodeIdent c_ident = c_node->getFullNodeIdent();
+				path = c_ident.getPathStr();
+			} while(0);
 			cout << path << endl;
 		children:
 			switch(node_type) {
@@ -412,7 +408,7 @@ namespace config {
 					break;
 				default:
 					cerr << "Node: " << node->getClassName() << " - " << node->getNodeName()<< "[" << node->getTypeId() << "] Ident: " <<
-						node->getNodeIdent() << " location: " << node->getLocation() << " is unused in config" << endl;
+						node->getFullNodeIdent().getPathStr() << " location: " << node->getLocation() << " is unused in config" << endl;
 					errcnt++;
 				}
 			}

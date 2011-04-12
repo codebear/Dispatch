@@ -1,12 +1,13 @@
 #ifndef _PHP_EVENT_HANDLER_H
 #define _PHP_EVENT_HANDLER_H 1
 
+#include <php_stl.h>
+#include "php_compat_fix.h"
+
 #include "../DispatchModule.h"
 #include "../../core/EventQueue.h"
 #include "../../core/eventfilter/EventFilter.h"
 #include "../../core/eventfilter/EventFilterHelper.h"
-#include <php_stl.h>
-#include "php_compat_fix.h"
 
 
 using namespace dispatch::config;

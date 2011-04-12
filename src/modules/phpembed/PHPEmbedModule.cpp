@@ -19,6 +19,10 @@ namespace phpembed {
 
 
 	bool PHPEmbedModule::preInitialize() {
+		vector<PHPEventHandler*>::iterator handler;
+		for(handler = handlers.begin(); handler < handlers.end(); handler++) {
+			getEventQueue()->registerHandler(*handler);
+		}
 		return true;
 	}
 
@@ -40,7 +44,7 @@ namespace phpembed {
 		PHPEventHandler* handler = new PHPEventHandler(node);
 		if (handler->isValid()) {
 			handlers.push_back(handler);
-			getEventQueue()->->registerHandler(handler);
+//			getEventQueue()->registerHandler(handler);
 			return true;
 		}
 		delete handler;

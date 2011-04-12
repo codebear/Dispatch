@@ -19,8 +19,8 @@ namespace dispatch { namespace core {
 
 DispatchMain::DispatchMain(int argc, char* argv[]) : 
 	NameTimeTaggingOutputSet(cout.rdbuf(), cerr.rdbuf(), clog.rdbuf(), cerr.rdbuf()) ,
-	dont_detach(false),
-	queue(0)
+	queue(0),
+	dont_detach(false)
 {
 	for(int i = 0; i < argc; i++) {
 		string str = argv[i];
@@ -206,14 +206,14 @@ int DispatchMain::run() {
 	/**
 	* Attach to main process-object
 	*/
-	for(int i = 0; i < modules.size(); i++) {
+	for(uint i = 0; i < modules.size(); i++) {
 		MOD(i)->setQueueProvider(this);
 	}
 
 	/**
 	 * Pre-initialize modules
 	 */
-	for(int i = 0; i < modules.size(); i++) {
+	for(uint i = 0; i < modules.size(); i++) {
 		if (!MOD(i)->preInitialize()) {
 			err << "module "<<MOD(i)->getModuleName() << " failed to pre-initialize" << endl;
 		} else {
@@ -224,7 +224,7 @@ int DispatchMain::run() {
 	/**
 	 * Load config
 	 */
-	for(int i = 0; i < modules.size(); i++) {
+	for(uint i = 0; i < modules.size(); i++) {
 		GConfigNodeVisitor* visitor = MOD(i)->getConfigVisitor();
 		if (visitor != NULL) {
 			drv.runVisitor(visitor);
@@ -241,7 +241,7 @@ int DispatchMain::run() {
 	/**
 	 * Start'em'up
 	 */
-	for(int i = 0; i < modules.size(); i++) {
+	for(uint i = 0; i < modules.size(); i++) {
 		if (!MOD(i)->startup()) {
 			err << "module " << MOD(i)->getModuleName() << "failed to start up properly, shutting it down" << endl;
 			MOD(i)->shutdown();
@@ -265,6 +265,7 @@ int DispatchMain::run() {
 		return 0;
 	}
 	service();
+	return 0;
 }
 
 int DispatchMain::service() {
@@ -289,6 +290,7 @@ int DispatchMain::service() {
 	err << "Shutting down main thread" << endl;
 	
 	shutdown(queue_functor);
+	return 0;
 }
 
 int DispatchMain::shutdown(ThreadFunctor<EventQueue,void*>& queue_functor) {
@@ -303,7 +305,7 @@ int DispatchMain::shutdown(ThreadFunctor<EventQueue,void*>& queue_functor) {
 	*/
 	err << "Dispatch: " << "Stenger ned" << endl;
 	
-	for(int i = 0; i < modules.size(); i++) {
+	for(uint i = 0; i < modules.size(); i++) {
 		if (!MOD(i)) {
 			continue;
 		}
@@ -314,7 +316,7 @@ int DispatchMain::shutdown(ThreadFunctor<EventQueue,void*>& queue_functor) {
 	sleep(1);
 //	for(int i = 0; i < modules.size(); i++) {
 //	}
-	for(int i = 0; i < modules.size(); i++) {
+	for(uint i = 0; i < modules.size(); i++) {
 		modules[i].destroy(MOD(i));
 		MOD(i) = NULL;
 	}

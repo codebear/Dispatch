@@ -3,8 +3,10 @@
 #include "MsgQueue.h"
 #include "../../core/StreamEventHandler.h"
 #include <sstream>
+#include "../../config/NodeIdent.h"
 using namespace dispatch::util;
 using namespace dispatch::core;
+using namespace dispatch::config;
 namespace dispatch { namespace module { namespace ipcmsg {
 
 /**
@@ -52,7 +54,12 @@ public:
 	/**
 	* Instansier en melding med dataene lest fra ipc-køen
 	*/
-	IPCMsg(msg_type m, size_t len) : msg(m), valid(true), content_length(len) {};
+	IPCMsg(msg_type m, size_t len) : 
+		valid(true), 
+		content_length(len),
+		msg(m)
+	{
+	};
 	
 	/**
 	* Les ut meldings-innholdet som et string-objekt
@@ -76,11 +83,12 @@ class IPCMsgListener : public NameTimeTaggingOutputSet, public Thread {
 	MsgQueue<IPCMsg>* m_queue;
 	EventQueue* e_queue;
 	long type;
+	NodeIdent ident;
 public:
 	/**
 	* Køen som skal lyttes fra, og om den skal filtere på meldingstype
 	*/
-	IPCMsgListener(MsgQueue<IPCMsg>*m_queue, EventQueue* e_queue, long t = 0);
+	IPCMsgListener(NodeIdent ident, MsgQueue<IPCMsg>*m_queue, EventQueue* e_queue, long t = 0);
 	
 
 	/**

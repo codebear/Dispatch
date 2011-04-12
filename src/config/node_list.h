@@ -10,6 +10,7 @@
 
 #include <string>
 #include <vector>
+#include "NodeIdent.h"
 
 using namespace std;
 
@@ -256,7 +257,7 @@ namespace filter {
 		/**
 		* Identen det skal sjekkes mot
 		*/
-		string ident;
+		NodeIdent ident;
 		
 		/**
 		* Skal vi bare sjekke siste del av identen
@@ -272,6 +273,16 @@ namespace filter {
 		* Ident med string og flag som sier om vi skal sjekke bare siste eller ikke
 		*/
 		Ident(const string& id, bool s) : ident(id), simple(s) { }
+
+		/**
+		* Ident med bare id, vil sjekke full ident
+		*/
+		Ident(const NodeIdent& id) : ident(id), simple(false) { }
+		
+		/**
+		* Ident med string og flag som sier om vi skal sjekke bare siste eller ikke
+		*/
+		Ident(const NodeIdent& id, bool s) : ident(id), simple(s) { }
 
 		/**
 		* Tilfredstiller angitt node filtret

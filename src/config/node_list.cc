@@ -58,7 +58,7 @@ namespace filter {
 
 	bool Ident::accept(GConfigNode* n) {
 		
-		string id = simple ? n->getNodeIdent() : n->getFullNodeIdent();
+		NodeIdent id = simple ? n->getNodeIdent() : n->getFullNodeIdent();
 //		cout << id << " vs " << ident << endl;
 		return id == ident;
 	}

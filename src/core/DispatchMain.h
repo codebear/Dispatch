@@ -19,6 +19,7 @@ using namespace dispatch::util;
 #define MOD(i) (modules[i].module)
 namespace dispatch { namespace core {
 
+typedef unsigned int uint;
 /**
 * Wrapper-class for the main dispatch-process
 */

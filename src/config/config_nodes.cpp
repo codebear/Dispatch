@@ -37,11 +37,11 @@ namespace config {
 	 */
 
 
-	string GConfigVariableStatement::getNodeIdent() {
+	NodeIdent GConfigVariableStatement::getNodeIdent() {
 		if (vname) {
 			return vname->getNodeIdent();
 		}
-		return string();
+		return NodeIdent();
 	}
 
 }}

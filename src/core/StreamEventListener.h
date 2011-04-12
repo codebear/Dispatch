@@ -12,8 +12,11 @@
 #include "../util/Thread.h"
 #include "StreamEventHandler.h"
 #include "../util/NameTimeInserter.h"
+#include "../config/NodeIdent.h"
+
 using namespace std;
 using namespace dispatch::util;
+using namespace dispatch::config;
 
 namespace dispatch {
 namespace core {
@@ -31,7 +34,11 @@ public:
 	
 	StreamEventListener(string name, EventQueue* q);
 	
+	StreamEventListener(string name, EventQueue* q, NodeIdent& id);
+		
 	StreamEventListener(EventQueue* q);
+	
+	StreamEventListener(EventQueue* q, NodeIdent id);
 	
 	virtual ~StreamEventListener();
 

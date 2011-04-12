@@ -12,8 +12,11 @@ using namespace dispatch::util;
 namespace dispatch {
 namespace module {
 namespace fifo {
-FifoStreamListener::FifoStreamListener() {
-
+FifoStreamListener::FifoStreamListener(NodeIdent id) {
+	base_ident = id;
+}
+FifoStreamListener::FifoStreamListener(NodeIdent* id) {
+	base_ident = *id;
 }
 
 FifoStreamListener::FifoStreamListener(string fifo_f) : fifo(fifo_f) {
@@ -65,6 +68,10 @@ FifoStreamListener::~FifoStreamListener() {
 
     void FifoStreamListener::setFifo(string fifo_f) {
     	fifo = fifo_f;
+    }
+    
+    string FifoStreamListener::getFifo() {
+    	return fifo;
     }
     
     string FifoStreamListener::getName() {

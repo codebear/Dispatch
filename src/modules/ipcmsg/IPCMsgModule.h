@@ -12,8 +12,9 @@ public:
 	key_t key;
 	int type;
 	int count;
+	NodeIdent ident;
 
-	_ListenerSpec(key_t k, int t, int c);
+	_ListenerSpec(key_t k, int t, int c, NodeIdent ident);
 };
 
 /**
@@ -21,7 +22,7 @@ public:
 */
 class IPCMsgModule : public DispatchModule {
 	vector<IPCMsgListener*> listeners;
-	void initializeListeners(key_t key, long type, int count);
+	void initializeListeners(key_t key, long type, int count, NodeIdent id);
 	vector<_ListenerSpec*> specs;
 public:
 	/**

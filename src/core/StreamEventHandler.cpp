@@ -24,9 +24,9 @@ void Tokenize(const string& str,
     	tokens.push_back(str);
     	return;
     }
-    if (max_cnt) {
+/*    if (max_cnt) {
     	max_cnt;
-    }
+    }*/
 //    cout << "max_cnt" << max_cnt << endl;
 
     int cnt = 0;
@@ -51,14 +51,23 @@ void Tokenize(const string& str,
 
 
 StreamEventHandler::StreamEventHandler() :
-	working_event(NULL),
-	queue(NULL) {
+	queue(NULL),
+	working_event(NULL)
+{
 }
 
 StreamEventHandler::StreamEventHandler(EventQueue* ev) : 
 	queue(ev),
 	working_event(NULL) {
 
+}
+
+StreamEventHandler::StreamEventHandler(EventQueue* ev, config::NodeIdent& id) :
+	queue(ev),
+	working_event(NULL),
+	base_ident(id)
+{
+	
 }
 
 void StreamEventHandler::setEventQueue(EventQueue* e) {
@@ -129,7 +138,7 @@ void StreamEventHandler::handleCompleteEvent(string event) {
 	Tokenize(event, linjer, "\n");
 	// Flush eventuelt noe som ligger der
 	handleStreamLine("", true);
-	for (int i = 0; i < linjer.size(); i++) {
+	for (uint i = 0; i < linjer.size(); i++) {
 		cout << "Linje " << i << ": " << linjer[i] << endl;
 		handleStreamLine(linjer[i]);
 	}

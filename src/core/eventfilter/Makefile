@@ -17,6 +17,8 @@ all: $(SRC)
 %.o: %.cpp
 	$(CC) $(CCARGS) -g -c -o $@ $<
 
+%.cpp: %.h
+
 #
 # Rydderegler
 #

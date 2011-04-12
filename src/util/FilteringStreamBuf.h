@@ -78,6 +78,7 @@ public:
 	virtual int sync() {
 		int	result( EOF ) ;
 		if ( myDest != NULL ) {
+//			std::cerr << "Syncer output stream" << endl;
 			result = myDest->pubsync() ;
 		}
 		return result ;   	                     
@@ -162,7 +163,7 @@ public:
 	}
 
 	/**
-	* functor-impolementasjon
+	* functor-implementasjon
 	*/
 	int operator()( streambuf& dst , int ch )
 	{

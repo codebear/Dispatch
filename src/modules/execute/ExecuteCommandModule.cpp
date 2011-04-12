@@ -41,7 +41,7 @@ bool ExecuteCommandModule::scanConfigNode(GConfigNode* node) {
 		PHPEventHandler* handler = new PHPEventHandler(node);
 		if (handler->isValid()) {
 			handlers.push_back(handler);
-			getEventQueue()->->registerHandler(handler);
+			getEventQueue()->registerHandler(handler);
 			return true;
 		}
 		delete handler;

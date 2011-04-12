@@ -14,6 +14,7 @@ using namespace dispatch::config;
 
 namespace dispatch {
 namespace module {
+	typedef unsigned int uint;
 
 	/**
 	* Innslag i master-modul-tabellen til systemet

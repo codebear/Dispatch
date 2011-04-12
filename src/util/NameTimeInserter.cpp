@@ -28,10 +28,21 @@ string NameTimeInserter::getPostfix() {
 }
 
 
-NameTimeTaggedOutput::NameTimeTaggedOutput(NameProvider* n, streambuf* buf) : ostream(buf), name(n) {
+NameTimeTaggedOutput::NameTimeTaggedOutput(NameProvider* n, streambuf* buf) : 
+	ostream(buf), 
+	name(n) 
+{
 	wrapper = new FilteringOutputStreambuf<NameTimeInserter>(buf);
 	wrapper->inserter().setNameProvider(n);
 	rdbuf(wrapper);
 }
+
+NameTimeTaggedOutput::~NameTimeTaggedOutput()
+{
+	if (wrapper != NULL) {
+		delete wrapper;
+	}
+}
+
 
 }} // end namespace

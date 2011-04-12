@@ -1,9 +1,11 @@
 
 #include <string>
 #include "EventQueue.h"
+#include "../config/NodeIdent.h"
 
 #ifndef _STREAM_EVENT_HANDLER_H
 #define _STREAM_EVENT_HANDLER_H 1
+
 
 namespace dispatch { namespace core {
 
@@ -16,6 +18,7 @@ class StreamEventHandler {
 	EventQueue* queue;
 	Event* working_event;
 	string rest_buffer;
+	config::NodeIdent base_ident;
 public:
 	StreamEventHandler();
 	
@@ -23,6 +26,11 @@ public:
 	* Konstruer med en kø for leveranse
 	*/
 	StreamEventHandler(EventQueue*);
+	
+	/**
+	*
+	*/
+	StreamEventHandler(EventQueue*, config::NodeIdent&);
 	
 	/**
 	* Peker til kø eventene skal leveres til

@@ -5,10 +5,11 @@
 namespace dispatch { namespace module { namespace inet {
 
 InetStreamConnection::InetStreamConnection(InetStreamListener* l, FDMonitor::type* mon) :
-	monitor(mon),
 	listener(l),
-	remote_len(0),
-	handler(l->getEventQueue()) {
+	monitor(mon),
+	handler(l->getEventQueue()),
+	remote_len(0)
+{
 }
 
 void InetStreamConnection::handleSocketEvent(FDMonitorEvent* evnt) {

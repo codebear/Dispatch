@@ -3,9 +3,7 @@ CCARGS:=-Wall -ggdb
 
 all: modules.o DispatchModule.o
 
-dynamic_modules: execute_sub fifo_sub inotify_sub inet_sub ipcmsg_sub
-
-## phpembed_sub 
+dynamic_modules: execute_sub fifo_sub inotify_sub inet_sub ipcmsg_sub phpembed_sub 
 
 %.o: %.cpp
 	$(CC) $(CCARGS) -c -g -o $@ $<

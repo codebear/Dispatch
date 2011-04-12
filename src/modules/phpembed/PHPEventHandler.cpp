@@ -83,7 +83,6 @@ namespace phpembed {
 		for(p_iter = parms.begin(); p_iter != parms.end(); p_iter++) {	
 			char* key = strdup((*p_iter).first.c_str());
 			char* value = strdup((*p_iter).second.c_str());
-			
 			php_evnt.add_assoc("ss", key, value);
 			std::free(key);
 			std::free(value);

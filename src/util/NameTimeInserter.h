@@ -53,11 +53,8 @@ public:
 	* Initialiser med name-provider og stream-buf
 	*/
 	NameTimeTaggedOutput(NameProvider* n, streambuf* buf);
-	virtual ~NameTimeTaggedOutput() {
-		if (wrapper != NULL) {
-			delete wrapper;
-		}
-	}
+	virtual ~NameTimeTaggedOutput();
+	
 };
 
 

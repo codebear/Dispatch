@@ -3,12 +3,13 @@
 #include <errno.h>
 namespace dispatch { namespace module { namespace ipcmsg {
 
-IPCMsgListener::IPCMsgListener(MsgQueue<IPCMsg>* q, EventQueue* e, long t) :
-	Thread("IPCMsgListener"),
+IPCMsgListener::IPCMsgListener(NodeIdent id, MsgQueue<IPCMsg>* q, EventQueue* e, long t) :
 	NameTimeTaggingOutputSet(cout.rdbuf(), cerr.rdbuf(), clog.rdbuf(), cerr.rdbuf()),
+	Thread("IPCMsgListener"),
 	m_queue(q),
 	e_queue(e),
-	type(t) {
+	type(t),
+	ident(id) {
 	
 }
 

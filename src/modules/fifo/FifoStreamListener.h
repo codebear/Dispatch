@@ -27,8 +27,13 @@ class FifoStreamListener : public StreamEventListener {
 	* Path til fifo-en som man åpner strømmen fra
 	*/
 	string fifo;
+	
+	NodeIdent base_ident;
+	
 public:
-	FifoStreamListener();
+	FifoStreamListener(NodeIdent id);
+	
+	FifoStreamListener(NodeIdent* id);
 	/**
 	* Path til fifo som argument
 	*/
@@ -38,6 +43,8 @@ public:
 	* Sett stien til fifoen som skal leses fra
 	*/
 	void setFifo(string fifo);
+	
+	string getFifo();
 	
 	/**
 	* Navn på tråden

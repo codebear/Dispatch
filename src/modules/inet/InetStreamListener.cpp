@@ -26,14 +26,16 @@ InetStreamListener::InetStreamListener() :
 }
 
 InetStreamListener::InetStreamListener(DispatchModule* mod, string adr, string port) :
-	module(mod),
 	inet_addr(adr), 
-	inet_port(port) {
+	inet_port(port),
+	module(mod)
+{
 }
 
 InetStreamListener::InetStreamListener(DispatchModule* mod, string adr, int port) : 
-	module(mod),
-	inet_addr(adr) {
+	inet_addr(adr),
+	module(mod)
+{
 	std::stringstream tmp;
 	tmp << port;
 	inet_port = tmp.str();

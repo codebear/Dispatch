@@ -6,14 +6,13 @@
 #include <iostream>
 #include "node_list.h"
 #include "location.hh"
+#include "NodeIdent.h"
 
 
 using namespace std;
 
 namespace dispatch {
 namespace config {
-
-typedef unsigned int uint;
 
 class GConfigAutoreleasePool;
 
@@ -198,12 +197,12 @@ public:
 	/**
 	* hent ut denne nodens spesifisert ident
 	*/
-	virtual string getNodeIdent();
+	virtual NodeIdent getNodeIdent();
 	
 	/**
 	* Hent ut denne nodens fulle ident. Dvs denne nodens ident kjedet sammen med ovenstående noders ident.
 	*/
-	virtual string getFullNodeIdent();
+	virtual NodeIdent getFullNodeIdent();
 	
 	/**
 	* Hent ut node-navn

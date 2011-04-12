@@ -9,7 +9,7 @@ LEXER_PRE:=lex.yy.ii
 #
 # Alle objektfilene som skal kompileres i denne katalogen
 #
-all: config.o driver.o config_nodes.o config_y.tab.o node_list.o node_base.o lexer
+all: config.o driver.o config_nodes.o config_y.tab.o node_list.o node_base.o NodeIdent.o lexer
 
 
 #
@@ -44,6 +44,7 @@ config.cpp: config_y.tab.C
 
 config_y.tab.C: config_y.Y
 	bison -v -l -g -d -k config_y.Y
+	cp position.hh.patched position.hh
 
 lex.yy.ii: lex.yy.cc
 	$(CC) $(CCFLAGS) -g -c -E -o $@ $<

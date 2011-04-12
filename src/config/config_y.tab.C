@@ -301,8 +301,8 @@ namespace dispatch {
 {
 // start
 	// void
-/* @$.begin.filename = @$.end.filename = new string(driver.getFileName());
- @$.begin.line = @$.end.line = 0;
+ yylloc.begin.filename = yylloc.end.filename = new string(driver.getFileName());
+/* @$.begin.line = @$.end.line = 0;
  @$.begin.column = @$.end.column = 0;
 */
 }

@@ -10,7 +10,11 @@ typedef dispatch::config_parser::token_type token_type;
 typedef dispatch::config_parser::token	token;
 typedef	dispatch::config_parser::semantic_type	semantic_type;
 typedef	dispatch::config_parser::location_type	location_type;
-int colnum;
+int colnum = 0;
+int prev_lineno = 0;
+char* comment_start = 0;
+int comment_start_line = 0;
+int comment_start_col = 0;
 #define yyterminate() return token::END
 
 # define YY_DECL	token_type dispatch::config::configScanner::lex (semantic_type* yylval, location_type* yylloc)
@@ -38,30 +42,32 @@ int colnum;
 
 %option yylineno
 
+%option nodefault
+
 %x	CONFIG
 %x	COMMENT
 
 %{
 	
-#define YY_USER_ACTION { \
+#define YY_USER_ACTION { handlePosition(*yylloc, yytext, yyleng); }
+
+/*{ \
 		yylloc->end.line = yylloc->begin.line = yylineno; \
 		yylloc->begin.column = colnum; \
-		yylloc->end.column = colnum + yyleng; \
+		yylloc->end.column = colnum; \
 		do { \
-			int _nl_i;\
-			int _nl_r = 0; \
-			for ( _nl_i = 0; _nl_i < yyleng; ++_nl_i ) {\
+			for (int _nl_i = 0; _nl_i < yyleng; ++_nl_i ) {\
+				++(yylloc->end.column); \
 				if ( yytext[_nl_i] == '\n' ) { \
-					++(yylloc->end.line);\
 					yylloc->end.column = 0; \
-					_nl_r = yyleng - _nl_i; \
+					++yylineno; \
 				} \
 			} \
-			if (_nl_r) {\
-				yylloc->end.column = _nl_r; \
-			} \
+			yylloc->end.line = yylineno; \
+			colnum = yylloc->end.column; \
 		}while(0); \
 	}
+*/
 
 /* #define YY_USER_ACTION  yylloc->columns(yyleng); */
 
@@ -122,20 +128,31 @@ int colnum;
 						}
 						
 <CONFIG>(\/\*)			{
+							comment_start = yytext;
+							comment_start_line = yylloc->begin.line;
+							comment_start_col = yylloc->begin.column;
 							BEGIN COMMENT;
 						}
 
 <COMMENT>(\*\/)			{
+							yylval->str_val = strdup(comment_start);
+							yylloc->begin.line = comment_start_line;
+							yylloc->begin.column = comment_start_col;
 							BEGIN CONFIG;
+							return token::T_COMMENT;
 						}
 
-<COMMENT>(.)			{}
+<COMMENT>(.|\n)			{}
 
 %%
 namespace dispatch {
 namespace config {
 
-configScanner::configScanner(std::istream* in, std::ostream* out) : configFlexLexer(in, out) {
+configScanner::configScanner(std::istream* in, std::ostream* out) : 
+	configFlexLexer(in, out),
+	line(1),
+	col(0)
+{
 
 }
 

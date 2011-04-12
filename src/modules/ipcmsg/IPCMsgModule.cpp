@@ -6,10 +6,11 @@
 using namespace dispatch::config::filter;
 namespace dispatch { namespace module { namespace ipcmsg {
 
-_ListenerSpec::_ListenerSpec(key_t k, int t, int c) :
+_ListenerSpec::_ListenerSpec(key_t k, int t, int c, NodeIdent id) :
 	key(k),
 	type(t),
-	count(c) {
+	count(c),
+	ident(id) {
 
 
 }
@@ -53,7 +54,7 @@ bool IPCMsgModule::startup() {
 bool IPCMsgModule::preInitialize() {
 	vector<_ListenerSpec*>::iterator it;
 	for(it = specs.begin(); it < specs.end(); it++) {
-		initializeListeners((*it)->key, (*it)->type, (*it)->count);
+		initializeListeners((*it)->key, (*it)->type, (*it)->count, (*it)->ident);
 	}
 	return true;
 }
@@ -63,6 +64,7 @@ bool IPCMsgModule::scanConfigNode(GConfigNode* node) {
 	vector<string> keys = StringVariableHelper::getStrings(node, "key", 1);
 	vector<string> types = StringVariableHelper::getStrings(node, "type", 1);
 	string count_str = StringVariableHelper::getString(node, "threads", 1, true);
+	NodeIdent ident = node->getFullNodeIdent();
 	int count = 1;
 	if (count_str.length()) {
 		count = string_conv<int>(count_str);
@@ -85,7 +87,7 @@ bool IPCMsgModule::scanConfigNode(GConfigNode* node) {
 			for(type_it = types.begin(); type_it != types.end(); type_it++) {
 				long type = string_conv<long>(*type_it);
 				if (type) {
-					specs.push_back(new _ListenerSpec(key, type, count));
+					specs.push_back(new _ListenerSpec(key, type, count, ident));
 //					initializeListeners(key, type, count);
 					retval = true;
 				} else {
@@ -94,7 +96,7 @@ bool IPCMsgModule::scanConfigNode(GConfigNode* node) {
 				
 			}
 		} else {
-			specs.push_back(new _ListenerSpec(key, 0, count));
+			specs.push_back(new _ListenerSpec(key, 0, count, ident));
 	//		initializeListeners(key, 0, count);
 			retval = true;
 		}
@@ -103,13 +105,13 @@ bool IPCMsgModule::scanConfigNode(GConfigNode* node) {
 }
 
 
-void IPCMsgModule::initializeListeners(key_t key, long type, int count) {
+void IPCMsgModule::initializeListeners(key_t key, long type, int count, NodeIdent ident) {
 	out << "Initaliserer " << count << " ipc-lyttere med key " << key << " og type " << type << endl;
 	for(int i = 0; i < count; i++) {
 		if (type) {
-			listeners.push_back(new IPCMsgListener(new SysVMsgQueue<IPCMsg>(key), getEventQueue()));
+			listeners.push_back(new IPCMsgListener(ident, new SysVMsgQueue<IPCMsg>(key), getEventQueue()));
 		} else {
-			listeners.push_back(new IPCMsgListener(new SysVMsgQueue<IPCMsg>(key), getEventQueue(), type));		
+			listeners.push_back(new IPCMsgListener(ident, new SysVMsgQueue<IPCMsg>(key), getEventQueue(), type));		
 		}
 	}
 }

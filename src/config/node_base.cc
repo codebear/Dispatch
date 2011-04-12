@@ -58,8 +58,8 @@ string GConfigNode::getNodeName() {
 	return string();
 }
 
-string GConfigNode::getNodeIdent() {
-	return string();
+NodeIdent GConfigNode::getNodeIdent() {
+	return NodeIdent();
 }
 
 
@@ -75,24 +75,15 @@ GConfigNode* GConfigNode::findParentByFilter(filter::NodeFilter* f, int level) {
 }
 
 
-string GConfigNode::getFullNodeIdent() {
-	string str = getNodeIdent();
-	string pident;
+NodeIdent GConfigNode::getFullNodeIdent() {
+	NodeIdent id = getNodeIdent();
+	NodeIdent pident;
 	GConfigNode* parent = getParentNode();
 	if (parent != NULL) {
 		pident = parent->getFullNodeIdent();
+		return pident.concat(id);
 	}
-
-	if (pident.length()) {
-		if (str.length()) {
-			pident += ".";
-			pident += str;
-		}
-		return pident;
-
-	} else {
-		return str;
-	}
+	return id;
 
 }
 

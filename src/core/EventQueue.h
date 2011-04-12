@@ -72,6 +72,7 @@ public:
 	* @todo Definer om denne burde returnere bool
 	*/
 	virtual void handleEvent(Event* e) = 0;
+	
 };
 
 
