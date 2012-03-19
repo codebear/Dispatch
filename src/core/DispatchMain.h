@@ -110,6 +110,8 @@ public:
 	int service();
 	
 	int shutdown(ThreadFunctor<EventQueue,void*>& queue_functor);
+	
+	void initLogging();
 };
 
 }}

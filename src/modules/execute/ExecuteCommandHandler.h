@@ -25,6 +25,7 @@ public:
 
 
 class ExecuteCommandHandler {
+	ExecuteCommandSpec command_spec;
 public:
 	ExecuteCommandHandler(ExecuteCommandSpec s);
 };

@@ -1,32 +1,24 @@
 CC:=g++
-CCARGS:=-Wall -ggdb
+CFLAGS:=-Wall -ggdb -fPIC
+
+SUBDIRS=execute fifo inotify inet ipcmsg phpembed
 
 all: modules.o DispatchModule.o
 
-dynamic_modules: execute_sub fifo_sub inotify_sub inet_sub ipcmsg_sub phpembed_sub 
+.PHONY: $(SUBDIRS) dynamic_modules
+
+dynamic_modules: $(SUBDIRS)
+
+$(SUBDIRS):
+	$(MAKE) -C $@
+
+
+# dynamic_modules: execute_sub fifo_sub inotify_sub inet_sub ipcmsg_sub phpembed_sub 
 
 %.o: %.cpp
-	$(CC) $(CCARGS) -c -g -o $@ $<
+	$(CC) $(CFLAGS) -c -g -o $@ $<
 
 %.cpp: %.h %.H
-
-phpembed_sub:
-	$(MAKE) -C phpembed
-
-inotify_sub:
-	$(MAKE) -C inotify
-
-execute_sub:
-	$(MAKE) -C execute
-
-fifo_sub:
-	$(MAKE) -C fifo
-
-inet_sub:
-	$(MAKE) -C inet
-
-ipcmsg_sub:
-	$(MAKE) -C ipcmsg
 
 clean:
 	rm -f *.o

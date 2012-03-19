@@ -14,7 +14,7 @@ namespace module {
 
 
 DispatchModule::DispatchModule() : 
-	NameTimeTaggingOutputSet(cout.rdbuf(), clog.rdbuf(), cerr.rdbuf(), cerr.rdbuf()),
+//	NameTimeTaggingOutputSet(cout.rdbuf(), clog.rdbuf(), cerr.rdbuf(), cerr.rdbuf()),
 	queue_provider(0)
 /*	out(this, cout.rdbuf()), 
 	log(this, clog.rdbuf()),

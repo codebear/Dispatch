@@ -1,5 +1,5 @@
 CC:=g++
-CCARGS:=-Wall -ggdb
+CFLAGS:=-Wall -ggdb -fPIC
 
 #
 # Alle objekter som skal kompileres i denne katalogen
@@ -15,7 +15,7 @@ all: $(SRC)
 # alle .cpp filer skal bli objektfiler
 #
 %.o: %.cpp
-	$(CC) $(CCARGS) -g -c -o $@ $<
+	$(CC) $(CFLAGS) -g -c -o $@ $<
 
 #
 # Rydderegler

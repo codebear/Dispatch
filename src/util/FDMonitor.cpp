@@ -8,7 +8,7 @@
 
 using namespace std;
 
-namespace dispatch {namespace util {
+namespace dispatch { namespace util {
 
 
 FDMonitorEntry::FDMonitorEntry(int f, short m, FDMonitorCallback* cb) :
@@ -24,10 +24,10 @@ void _FDMonitor_impl::run() {
 	while(this->isRunning()) {
 		if (!this->doIteration()) {
 			if (!monitored_fds.size()) {
-				err << "Nothing to listen against, so waiting for something to show up..." << endl;
-				getCondition()->sleepUntil();
+				err() << "Nothing to listen against, so waiting for something to show up..." << endl;
+				getCondition()->waitFor();
 			}
-			err << "Polling "<< monitored_fds.size() << " returnerte false... venter i 0.5sec og prøver igjen" << endl;
+			err() << "Polling "<< monitored_fds.size() << " returnerte false... venter i 0.5sec og prøver igjen" << endl;
 			/**
 			* Dersom den returnere false, så 
 			* venter vi litt, for å unngå en grum-loop
@@ -55,8 +55,10 @@ bool _FDMonitor_impl::registerFD(int fd, short mask, FDMonitorCallback* cb) {
 
 bool _FDMonitor_impl::unregisterFD(int fd) {
 	m_lock.lock();
-	if(monitored_fds[fd] != NULL) {
+	FDMonitorEntry* e = monitored_fds[fd];
+	if(e != NULL) {
 		monitored_fds.erase(fd);
+		delete e;
 //		monitored_fds[fd] = NULL;
 		m_lock.unlock();
 		return true;
@@ -66,6 +68,18 @@ bool _FDMonitor_impl::unregisterFD(int fd) {
 }
 
 _FDMonitor_impl::_FDMonitor_impl() : Thread("FDMonitor") {
+
+}
+
+_FDMonitor_impl::~_FDMonitor_impl() {
+    std::map<int, FDMonitorEntry*>::iterator it;
+    FDMonitorEntry* entry;
+    for(it = monitored_fds.begin(); it != monitored_fds.end(); ++it) {
+	entry = it->second;
+	if (entry) {
+	    delete entry;
+	}
+    }
 
 }
 
@@ -95,7 +109,7 @@ bool _FDMonitor_impl::doIteration() {
 //	out << "Poller " << num << "fds: " << tmp.str() << endl;
 	int ret = poll(fds, num, timeout);
 	if (ret == -1) {
-		err << "Error polling: " << strerror(errno) << endl;
+		err() << "Error polling: " << strerror(errno) << endl;
 		return false;
 	}
 	if (ret == 0) {

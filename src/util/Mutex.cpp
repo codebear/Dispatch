@@ -12,15 +12,29 @@ Mutex::~Mutex() {
 }
 
 bool Mutex::lock() {
-	return 0 == pthread_mutex_lock(&lock_handle);
+	bool res = (0 == pthread_mutex_lock(&lock_handle));
+	_locked = res;
+	return res;
 }
 
 bool Mutex::trylock() {
-	return 0 == pthread_mutex_trylock(&lock_handle);
+	bool res = (0 == pthread_mutex_trylock(&lock_handle));
+	if (res) {
+		_locked = res;
+	}
+	return res;
 }
 
 bool Mutex::unlock() {
-	return 0 == pthread_mutex_unlock(&lock_handle);
+	bool res = (0 == pthread_mutex_unlock(&lock_handle));
+	if (res) {
+		_locked = false;
+	}
+	return res;
+}
+
+bool Mutex::locked() {
+	return _locked;
 }
 
 pthread_mutex_t* Mutex::getHandle() {

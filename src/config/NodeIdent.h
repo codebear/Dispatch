@@ -17,9 +17,13 @@ public:
 
 	NodeIdent(string i);
 	
+	NodeIdent(vector<string> v);
+	
 	string getPathStr() const;
 	
 	string getPathStr(string sep) const;
+	
+	NodeIdent parent();
 	
 	NodeIdent concat(NodeIdent& i);
 	

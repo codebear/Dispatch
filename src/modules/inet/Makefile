@@ -1,19 +1,19 @@
 
 CC:=g++
-CCARGS:=-Wall -ggdb
+CFLAGS:=-Wall -ggdb -fPIC
 
 MODULE_CORE=../DispatchModule.o ../../util/Thread.o ../../core/StreamEventListener.o ../../core/EventQueue.o ../../util/FileStat.o ../../util/Mutex.o ../../util/FDMonitor.o
 
 all: ineteventlistener.so 
 
 %.o: %.cpp
-	$(CC) $(CCARGS) -g -c -o $@ $< 
+	$(CC) $(CFLAGS) -g -c -o $@ $< 
 	
 %.cpp: %.h
 
 
 ineteventlistener.so: InetEventSourceModule.o	InetStreamListener.o InetStreamConnection.o $(MODULE_CORE)
-	$(CC) $(CCARGS) -g -fpic -dynamiclib -shared -single_module -lpthread -rdynamic -o $@  $^
+	$(CC) $(CFLAGS) -g -fpic -dynamiclib -shared -lpthread -rdynamic -o $@  $^
 
 
 clean:

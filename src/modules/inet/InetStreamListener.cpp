@@ -20,21 +20,24 @@ namespace dispatch {
 namespace module {
 namespace inet {
 
+/*
 InetStreamListener::InetStreamListener() : 
 	module(NULL) {
 
 }
-
-InetStreamListener::InetStreamListener(DispatchModule* mod, string adr, string port) :
+*/
+InetStreamListener::InetStreamListener(StreamEventHandler* h, string adr, string port) :
+	StreamEventListener(h),
 	inet_addr(adr), 
-	inet_port(port),
-	module(mod)
+	inet_port(port)
+//	module(mod)
 {
 }
 
-InetStreamListener::InetStreamListener(DispatchModule* mod, string adr, int port) : 
-	inet_addr(adr),
-	module(mod)
+InetStreamListener::InetStreamListener(StreamEventHandler* h, string adr, int port) : 
+	StreamEventListener(h),
+	inet_addr(adr)
+//	module(mod)
 {
 	std::stringstream tmp;
 	tmp << port;
@@ -45,7 +48,14 @@ InetStreamListener::InetStreamListener(DispatchModule* mod, string adr, int port
 
 
 InetStreamListener::~InetStreamListener() {
-
+	for(vector<InetStreamConnection*>::iterator it = connections.begin(); it != connections.end(); ++it) {
+		delete *it;
+	}
+	if (monitor) {
+		for(vector<int>::iterator it = sockets.begin(); it != sockets.end(); ++it) {
+			monitor->unregisterFD(*it);	
+		}
+	}
 }
 
     bool InetStreamListener::initStream() {
@@ -86,46 +96,46 @@ InetStreamListener::~InetStreamListener() {
 			perror("address resolution failed");
 			return false;
 		}
-#define MAX_HOST_LEN 2048
-		char hostname[MAX_HOST_LEN] = "";
+//#define MAX_HOST_LEN 2048
+		char hostname[NI_MAXHOST] = "";
 		for(res = res_list; res != NULL; res = res->ai_next) {
 			/**
 			* Først, skriver vi litt output om hva vi har funnet
 			*/
-			module->out << "INET " << endl;
+			out() << "INET " << endl;
 			unsigned short port_no = 0;
 			switch(res->ai_family) {
 				case AF_INET:
-					module->out << "IPv4: ";
+					out() << "IPv4: ";
 					do {
 						struct sockaddr_in* adr4 = (struct sockaddr_in*) res->ai_addr;
 						port_no = ntohs(adr4->sin_port);
 					} while(0);
 					break;
 				case AF_INET6:
-					module->out << "IPv6: ";
+					out() << "IPv6: ";
 					do {
 						struct sockaddr_in6* adr6 = (struct sockaddr_in6*) res->ai_addr;
 						port_no = ntohs(adr6->sin6_port);
 					} while(0);
 					break;
 				default:
-					module->out << "Unknown family: ";
+					out() << "Unknown family: ";
 					break;
 			}
-			int name_res = getnameinfo(res->ai_addr, res->ai_addrlen, hostname, MAX_HOST_LEN, NULL, 0, 0);
+			int name_res = getnameinfo(res->ai_addr, res->ai_addrlen, hostname, NI_MAXHOST, NULL, 0, 0);
 			if (name_res != 0) {
-				module->err << "error in getnameinfo " << gai_strerror(name_res) << endl;
+				err() << "error in getnameinfo " << gai_strerror(name_res) << endl;
 				continue;
 			}
 			if (*hostname) {
-				module->out << "hostname: [" << hostname << "] ";
+				out() << "hostname: [" << hostname << "] ";
 			}
 			if (port) {
-				module->out << "port: " << port_no;
+				out() << "port: " << port_no;
 			}
 			
-			module->out << endl;
+			out() << endl;
 			
 			/**
 			* Så henger vi oss på nettet
@@ -136,7 +146,7 @@ InetStreamListener::~InetStreamListener() {
 			*/
 			int socket_fd = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
 			if (socket_fd == -1) {
-				module->err << "Error opening socket: " << strerror(errno) << endl;
+				err() << "Error opening socket: " << strerror(errno) << endl;
 				errcnt++;
 				continue;
 			}
@@ -146,16 +156,16 @@ InetStreamListener::~InetStreamListener() {
 			*/
 			int b_ret = bind(socket_fd, res->ai_addr, res->ai_addrlen);
 			if (b_ret == -1) {
-				module->err << "Error binding socket: " << strerror(errno) << endl;
+				err() << "Error binding socket: " << strerror(errno) << endl;
 				errcnt++;
 				continue;
 			}
 			
-			module->out << "Bunded til socket" << endl;
+			out() << "Bunded til socket" << endl;
 			
 			int l_ret = listen(socket_fd, 10);
 			if (l_ret != 0) {
-				module->err << "Error listening socket" << strerror(errno) << endl;
+				err() << "Error listening socket" << strerror(errno) << endl;
 				errcnt++;
 				continue;
 			}
@@ -206,8 +216,9 @@ istream*  InetStreamListener::getInputStream() {
 void InetStreamListener::attachToMonitor(FDMonitor::type& mon) {
 	vector<int>::iterator it;
 	for(it = sockets.begin(); it != sockets.end(); it++) {
+		int socket = *it;
 		mon.registerFD(
-			*it, 
+			socket, 
 			POLLIN, 
 			new TSpecificFunctor<InetStreamListener, FDMonitorEvent*>(this, &InetStreamListener::handleSocketEvent)
 		);
@@ -218,7 +229,7 @@ void InetStreamListener::attachToMonitor(FDMonitor::type& mon) {
 void InetStreamListener::handleSocketEvent(FDMonitorEvent* evnt) {
 	int event = evnt->event;
 	string names = FDEvent::getEventNames(event);
-//	module->out << "InetStreamListener: Received socket event: " << names << " for socket: " << evnt->fd << endl;
+//	out << "InetStreamListener: Received socket event: " << names << " for socket: " << evnt->fd << endl;
 	if (evnt->event & POLLIN) {
 			// Vi mottok en tilkobling
 			this->acceptConnection(evnt->fd);
@@ -226,25 +237,23 @@ void InetStreamListener::handleSocketEvent(FDMonitorEvent* evnt) {
 }
 
 void InetStreamListener::acceptConnection(int socket) {
-	InetStreamConnection* conn = new InetStreamConnection(this, monitor);
+	InetStreamConnection* conn = new InetStreamConnection(this); //, monitor);
 	conn->socket = accept(socket, &(conn->remote_addr), &(conn->remote_len));
 	if (conn->socket == -1) {
-//		module->err << "Accept socket failed: " << strerror(errno) << endl;
+//		err << "Accept socket failed: " << strerror(errno) << endl;
 		delete conn;
 		return;
 	}
-	if (monitor) {
-		monitor->registerFD(
-			conn->socket, 
-			POLLIN, 
-			new TSpecificFunctor<InetStreamConnection, FDMonitorEvent*>(conn, &InetStreamConnection::handleSocketEvent)
-		);
-	}
+	/**
+	* Enable reception of socket events
+	*/
 	connections.push_back(conn);
+	conn->attach(monitor);
 }
 
-EventQueue* InetStreamListener::getEventQueue() {
+/*EventQueue* InetStreamListener::getEventQueue() {
 	return module->getEventQueue();
 }
+*/
 
 }}} // end namespace

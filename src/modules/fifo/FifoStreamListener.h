@@ -31,13 +31,21 @@ class FifoStreamListener : public StreamEventListener {
 	NodeIdent base_ident;
 	
 public:
-	FifoStreamListener(NodeIdent id);
+/*
+
+	StreamEventListener(string name, StreamEventHandler*);
 	
-	FifoStreamListener(NodeIdent* id);
+	StreamEventListener(StreamEventHandler*);
+
+*/
+	FifoStreamListener(StreamEventHandler*, NodeIdent& id);
+	
+//	FifoStreamListener(NodeIdent& id);
 	/**
 	* Path til fifo som argument
 	*/
-	FifoStreamListener(string fifo_f);
+	FifoStreamListener(string fifo_f, StreamEventHandler*, NodeIdent& id);
+
 	virtual ~FifoStreamListener();
 	/**
 	* Sett stien til fifoen som skal leses fra

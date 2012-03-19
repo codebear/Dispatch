@@ -22,7 +22,7 @@ namespace fifo {
 	}
 		
     bool FifoEventSourceModule::preInitialize() {
-    	out << "Fifo: preInitialize..." << endl;
+    	out() << "Fifo: preInitialize..." << endl;
 /*  		string path = "events";
     	if (fifo_path.length()) {
 	    	fifo_listener.setFifo(fifo_path);
@@ -33,7 +33,7 @@ namespace fifo {
     	for(vector<FifoStreamListener*>::iterator i = listeners.begin();
     		i < listeners.end();++i) {
     		if (!(*i)->hasValidFifo()) {
-    			err << "FifoListener has invalid fifo " << (*i)->getFifo() << endl;
+    			err() << "FifoListener has invalid fifo " << (*i)->getFifo() << endl;
     		} else {
     			++ok;
     		}
@@ -42,8 +42,9 @@ namespace fifo {
     }
 
     bool FifoEventSourceModule::shutdown() {
-		out << "Stenger ned FifoEventSourceModule" << endl;
+		out() << "Stenger ned FifoEventSourceModule" << endl;
 		int failed = 0;
+		int cnt = 0;
     	for(vector<FifoStreamListener*>::iterator i = listeners.begin();
     		i < listeners.end();++i) {
     		
@@ -51,15 +52,16 @@ namespace fifo {
     		if (!(*i)->isStopped()) {
     			++failed;
     		}
+    		++cnt;
     	}
     	if (failed) {
-    		err << failed << "fifo event moduler har ikke stengt ned" << endl;
+    		err() << "Failed: " << failed << " av " << cnt << " fifo-event-moduler ble ikke stengt ned" << endl;
     	}
     	return failed == 0;
     }
 
 	bool FifoEventSourceModule::startup() {
-		out << "Starter opp FifoEventSourceModule" << endl;
+		out() << "Starter opp FifoEventSourceModule" << endl;
 		uint ok = 0;
 		for(vector<FifoStreamListener*>::iterator i = listeners.begin();
 			i < listeners.end(); ++i) {
@@ -67,7 +69,7 @@ namespace fifo {
 			if ((*i)->isRunning()) {
 				++ok;
 			} else {
-				err << "Fifo event source model with fifo " << (*i)->getFifo() << " will not start. " << endl;
+				err() << "Fifo event source model with fifo " << (*i)->getFifo() << " will not start. " << endl;
 			}
 		}
 		return ok > 0;
@@ -75,7 +77,7 @@ namespace fifo {
 
 	bool FifoEventSourceModule::scanConfigNode(GConfigNode* node) {
 	
-		out << "FIFO: Fikk en konfig-node.." << endl;
+		out() << "FIFO: Fikk en konfig-node.." << endl;
 		And find_socket(
 			new Ident("socket", true), 
 			new Type(GConfig::VARIABLE),
@@ -83,7 +85,7 @@ namespace fifo {
 		);
 		GConfigNodeList treff = node->findNodesByFilter(&find_socket);
 		GConfigNodeList::iterator i; //(treff.begin());
-		out << "Fant følgende fornuftig:" << endl;
+		out() << "Fant følgende fornuftig:" << endl;
 		int cnt = 0;
 		bool retval = false;
 		for(i = treff.begin(); i < treff.end(); i++) {
@@ -104,20 +106,22 @@ namespace fifo {
 			}
 			GConfigScalarVal* val = val_stat->getValue();
 			if (val) {
-				out << "Fant socket-sti: " << val->getStringValue() << endl;
-				FifoStreamListener* l = new FifoStreamListener(val_stat->getFullNodeIdent());
-				l->setFifo(val->getStringValue());
+				out() << "Fant socket-sti: " << val->getStringValue() << endl;
+				StreamEventHandler* h = new StreamEventQueueProvidingHandler(this);
+				NodeIdent fid = val_stat->getFullNodeIdent();
+				FifoStreamListener* l = new FifoStreamListener(val->getStringValue(), h, fid);
+				//l->setFifo(val->getStringValue());
 				listeners.push_back(l);
 				val_stat->used(1);
 				retval = true;
 			} else {
-				out << "Fikk noe rart: " << *i << endl;
+				out() << "Fikk noe rart: " << *i << endl;
 			}
 //			++i;
 			++cnt;
 		}
 		
-		out << cnt << " treff" << endl;
+		out() << cnt << " treff" << endl;
 		if (cnt > 0) {
 			node->used(1);
 		}

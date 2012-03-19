@@ -18,7 +18,7 @@ using namespace dispatch::util;
 namespace dispatch { namespace core {
 
 DispatchMain::DispatchMain(int argc, char* argv[]) : 
-	NameTimeTaggingOutputSet(cout.rdbuf(), cerr.rdbuf(), clog.rdbuf(), cerr.rdbuf()) ,
+//	NameTimeTaggingOutputSet(cout.rdbuf(), cerr.rdbuf(), clog.rdbuf(), cerr.rdbuf()) ,
 	queue(0),
 	dont_detach(false)
 {
@@ -29,7 +29,9 @@ DispatchMain::DispatchMain(int argc, char* argv[]) :
 }
 
 DispatchMain::~DispatchMain() {
-
+    if (queue) {
+	delete queue;
+    }
 }
 
 string DispatchMain::getName() {
@@ -50,7 +52,7 @@ void DispatchMain::initialize() {
 
 
 void DispatchMain::handleSignal(int sig) {
-	err << "DISPATCH: Received signal " << sig << " " << SigHandler::signalName(sig) << endl;
+	err() << "DISPATCH: Received signal " << sig << " " << SigHandler::signalName(sig) << endl;
 	switch(sig) {
 		case SIGINT:
 		case SIGTERM:
@@ -127,11 +129,11 @@ void DispatchMain::loadDefaultArguments() {
 
 int DispatchMain::parseCommandLineArguments() {
 	vector<string>::iterator iter;
-	cout << "Scanning arguments " << endl;
+	out() << "Scanning arguments " << endl;
 	int state = 10; // Firt argument should be the program name, after that we turn to state 0
 	for(iter = ARGV.begin(); iter != ARGV.end(); iter++) {
 		string arg = *iter;
-		dbg << "State: " << state << ": " << arg << endl;
+		dbg() << "State: " << state << ": " << arg << endl;
 		switch(state) {
 		case 0: // Not in any multi-arg sequence
 			if ((arg == "-c") || (arg == "--config-file")) {
@@ -183,7 +185,7 @@ int DispatchMain::run() {
 	loadDefaultArguments();
 	int parse_res = parseCommandLineArguments();
 	if (!parse_res) {
-		err << "Illegal arguments" << endl;
+		err() << "Illegal arguments" << endl;
 		return 2;
 	}
 	if (parse_res != 1) {
@@ -193,15 +195,17 @@ int DispatchMain::run() {
 	config::parseDriver drv(getConfigFile(), getConfigDir()); //"dispatch.conf", "../etc");
 //	config::parseDriver drv("dispatch.conf", "../etc");
 	if (drv.parse()) {
-		err << "Bad config" << endl;
+		err() << "Bad config" << endl;
 		return 1;
 	}
 //	drv.dump();
-	out << "Done parsing" << endl;
-	ModuleManager m;
-	m.loadModules(drv, modules);
+	initLogging();
+	
+	out() << "Done parsing" << endl;
+//	ModuleManager& m = ModuleManager::instance();
+	ModuleManager::instance().loadModules(drv, modules);
 
-	err << modules.size() << " moduler lastet" << endl;
+	err() << modules.size() << " moduler lastet" << endl;
 	
 	/**
 	* Attach to main process-object
@@ -215,9 +219,9 @@ int DispatchMain::run() {
 	 */
 	for(uint i = 0; i < modules.size(); i++) {
 		if (!MOD(i)->preInitialize()) {
-			err << "module "<<MOD(i)->getModuleName() << " failed to pre-initialize" << endl;
+			err() << "module "<<MOD(i)->getModuleName() << " failed to pre-initialize" << endl;
 		} else {
-			err << "Pre-initialized module " << MOD(i)->getModuleName() << endl;
+			err() << "Pre-initialized module " << MOD(i)->getModuleName() << endl;
 		}
 	}
 
@@ -243,12 +247,12 @@ int DispatchMain::run() {
 	 */
 	for(uint i = 0; i < modules.size(); i++) {
 		if (!MOD(i)->startup()) {
-			err << "module " << MOD(i)->getModuleName() << "failed to start up properly, shutting it down" << endl;
+			err() << "module " << MOD(i)->getModuleName() << "failed to start up properly, shutting it down" << endl;
 			MOD(i)->shutdown();
 			MOD(i)->started = false;
 		} else {
 			MOD(i)->started = true;
-			err << "Startet modul " << MOD(i)->getModuleName() << endl;
+			err() << "Startet modul " << MOD(i)->getModuleName() << endl;
 		}
 	}
 	if (dont_detach) {
@@ -257,11 +261,11 @@ int DispatchMain::run() {
 	}
 	int pid = fork();
 	if(pid < 0) {
-		err << "Unable to fork process" << endl;
+		err() << "Unable to fork process" << endl;
 		return -1;
 	}
 	if (pid) {
-		err << "in parent process. Child has " << pid << endl;
+		err() << "in parent process. Child has " << pid << endl;
 		return 0;
 	}
 	service();
@@ -284,10 +288,10 @@ int DispatchMain::service() {
 	/**
 	* Vent på eventuelle signaler
 	*/
-	err << "Idling main thread" << endl;
+	err() << "Idling main thread" << endl;
 	pause();
 	
-	err << "Shutting down main thread" << endl;
+	err() << "Shutting down main thread" << endl;
 	
 	shutdown(queue_functor);
 	return 0;
@@ -303,7 +307,7 @@ int DispatchMain::shutdown(ThreadFunctor<EventQueue,void*>& queue_functor) {
 	/**
 	* Close up
 	*/
-	err << "Dispatch: " << "Stenger ned" << endl;
+	err() << "Dispatch: " << "Stenger ned" << endl;
 	
 	for(uint i = 0; i < modules.size(); i++) {
 		if (!MOD(i)) {
@@ -320,9 +324,16 @@ int DispatchMain::shutdown(ThreadFunctor<EventQueue,void*>& queue_functor) {
 		modules[i].destroy(MOD(i));
 		MOD(i) = NULL;
 	}
-	return 0;
-	
 
+	for(uint i = 0; i < modules.size(); i++) {
+		ModuleManager::instance().unloadModule(modules[i]);
+	}
+//	Thread::
+	return 0;
+}
+
+void DispatchMain::initLogging() {
+	
 }
 
 

@@ -11,6 +11,13 @@ namespace dispatch {
 namespace module {
 namespace inotify {
 
+	class WatchDeclaration {
+	public:
+		NodeIdent id;
+		string path;
+		int watch_descriptor;
+	};
+
 	/**
 	* INotify-overvåker
 	*/
@@ -18,7 +25,7 @@ namespace inotify {
 		/**
 		* Liste over stiene som skal overvåkes
 		*/
-		vector<string> watch_paths;
+		map<string, config::NodeIdent> watch_paths;
 		
 		DispatchModule* module;
 	protected:
@@ -44,7 +51,7 @@ namespace inotify {
 		/**
 		* Legg til en sti til overvåkning
 		*/
-		bool addWatch(string path);
+		bool addWatch(config::NodeIdent& id, string path);
 		
 		/**
 		* Kjør overvåkning i egen tråd
@@ -55,7 +62,7 @@ namespace inotify {
 		* Les eventer fra inotify-fd-handle
 		* Tar handle som første argument, og en map over hvilke watch-ider som korresponderer til hvilke overvåkede mapper
 		*/
-		void readEvents(int fd, map<int, string>);
+		void readEvents(int fd, map<int, WatchDeclaration >&);
 	};
 	
 }}}

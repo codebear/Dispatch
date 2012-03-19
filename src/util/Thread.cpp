@@ -13,6 +13,7 @@
 #include <cstring>
 #include <errno.h>
 #include "Mutex.h"
+#include <sys/time.h>
 
 namespace dispatch { namespace util {
 
@@ -25,17 +26,12 @@ Thread::Thread(std::string n) :
 
 Thread::Thread() :
 	default_condition(0) {
-//	wrapper = NULL;
-
 }
 
 Thread::~Thread() {
-/*	if (wrapper) {
-		delete wrapper;
-	}*/
 	if (conditions.size() > 0) {
-		map<string,ThreadCondition*>::iterator conds;
-		for(conds = conditions.begin(); conds != conditions.end(); conds++) {
+		map<string, ThreadCondition*>::iterator conds;
+		for(conds = conditions.begin(); conds != conditions.end(); ++conds) {
 			delete (*conds).second;
 		}
 	}
@@ -61,6 +57,8 @@ bool Thread::currentThreadIsRunning() {
 pthread_key_t Thread::_thread_key;
 
 pthread_once_t Thread::_run_once = PTHREAD_ONCE_INIT;
+
+vector<Thread*> Thread::threads;
 
 void Thread::globalInitialize() {
 	pthread_once(&_run_once, &Thread::_global_initialize);
@@ -104,7 +102,12 @@ void Thread::start() {
 //	ThreadWrapper*
 	ThreadWrapper* wrapper = new ThreadWrapper(this);
 
-	pthread_create(&thread_id, NULL, thread_handler, wrapper);
+
+	int res = pthread_create(&thread_id, NULL, thread_handler, wrapper);
+	
+	if (res == 0) {
+		// Success
+	}
 
 }
 
@@ -170,46 +173,96 @@ ThreadCondition* Thread::getCondition() {
 */
 ThreadCondition::ThreadCondition(Thread* t) :
 	thread(t),
-	_inited(0),
-	mutex(0)
-{}
+	_aquired(false)
+{
+	pthread_cond_init(&condition, NULL);
+	pthread_mutex_init(&mutex, NULL);
+}
 
 ThreadCondition::~ThreadCondition() {
-	if (_inited) {
-		pthread_cond_destroy(&condition);
-		delete mutex;
-	}
+	pthread_cond_destroy(&condition);
+	pthread_mutex_destroy(&mutex);
 }
 
+/**
+* Returnerer antall millisekund ventet, eller -1 dersom timeout
+*/
+long ThreadCondition::waitFor(long usleep) {
+	struct timeval now;
+//	struct timeval timeout;
+	struct timeval done;
 
-
-void ThreadCondition::init() {
-	if (_inited) {
-		return;
+	if (!_aquired) {
+		pthread_mutex_lock(&mutex);
 	}
+	gettimeofday(&now, NULL);
 	
-	pthread_cond_init(&condition, NULL);
-	mutex = new Mutex();
-	_inited = 1;
+//	int s = usleep/1000000;
+//	int us = usleep - s*1000000;
+	
+//	timeout.tv_sec = now.tv_sec + s;
+//	timeout.tv_usec = now.tv_usec + us;
+	
+	int ret = pthread_cond_wait(&condition, &mutex);
+	gettimeofday(&done, NULL);
+	
+	if (!_aquired) {
+		pthread_mutex_unlock(&mutex);
+	}
+	if (ret == ETIMEDOUT) {
+		// timeout
+		return -1;
+	}
+	long elapsed = (done.tv_sec-now.tv_sec)+1000000;
+	elapsed += done.tv_usec-now.tv_usec;
+	return elapsed;
 }
 
-int ThreadCondition::sleepUntil(Mutex* m) {
-	init();
-	return pthread_cond_wait(&condition, m->getHandle());
-}
-
-int ThreadCondition::sleepUntil() {
-	init();
-	mutex->lock();
-	return pthread_cond_wait(&condition, mutex->getHandle());
+long ThreadCondition::waitFor() {
+	if (!_aquired) {
+		pthread_mutex_lock(&mutex);
+	}
+	int c = pthread_cond_wait(&condition, &mutex);
+	if (!_aquired) {
+		pthread_mutex_unlock(&mutex);
+	}
+	return c;
 }
 
 int ThreadCondition::wakeOne() {
-	return pthread_cond_signal(&condition);
+	if (!_aquired) {
+		pthread_mutex_lock(&mutex);
+	}
+	int r = pthread_cond_signal(&condition);
+	if (!_aquired) {
+		pthread_mutex_unlock(&mutex);
+	}
+	return r;
 }
 
 int ThreadCondition::wakeAll() {
-	return pthread_cond_broadcast(&condition);
+	if (!_aquired) {
+		pthread_mutex_lock(&mutex);
+	}
+	int r = pthread_cond_broadcast(&condition);
+	if (!_aquired) {
+		pthread_mutex_unlock(&mutex);
+	}
+	return r;
+}
+
+bool ThreadCondition::aquire() {
+	int r = pthread_mutex_lock(&mutex);
+	if (r != EINVAL) {
+		return _aquired = true;
+	}
+	return false;
+}
+
+bool ThreadCondition::release() {
+	_aquired = false;
+	int r = pthread_mutex_unlock(&mutex);
+	return r != EINVAL;
 }
 
 

@@ -24,7 +24,7 @@ class InetStreamConnection {
 	InetStreamListener* listener;
 	FDMonitor::type* monitor;
 //	vector<string> lines;
-	StreamEventHandler handler;
+//	StreamEventHandler handler;
 	
 public:
 	/**
@@ -44,8 +44,12 @@ public:
 	/**
 	* Instansier med listeneren som fikk tilkoblingen, og en file-descriptor overvåker som kaller oss når noe skjer
 	*/
-	InetStreamConnection(InetStreamListener* list, FDMonitor::type* mon);
-	
+	InetStreamConnection(InetStreamListener* list); //, FDMonitor::type* mon);
+
+	/**
+	* Heng seg pÃ¥ fd-monitoren
+	*/
+	void attach(FDMonitor::type* monitor);	
 	/**
 	* Event på socketen som må håndteres
 	*/

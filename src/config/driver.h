@@ -23,6 +23,7 @@
 #include "node_base.h"
 #include "config_nodes.h"
 #include "NodeIdent.h"
+#include "../util/FileStat.h"
 //#include "config_y.tab.H"
 
 using namespace std;
@@ -189,26 +190,19 @@ namespace config {
 		/**
 		* Navn på fila som er aktiv nå
 		*/
-		string getFileName() {
-			if (!files.empty()) {
-				return files.front().file;
-			}
-			return string();
-		}
+		string getFileName();
 		
-		string getBaseDir() {
-			return basedir;
-		}
+		/**
+		* Peker paa fila som parses naa. Er gyldig saa lenge den filen parses
+		*/ 
+		string* getFileNamePtr();
+
+		string getBaseDir();
 
 		/**
 		* Hent ut noden som er aktiv nå
 		*/
-		GConfigNode* getContainingNode() {
-			if (!files.empty()) {
-				return files.front().node;
-			}
-			return NULL;
-		}
+		GConfigNode* getContainingNode();
 	};
 
 	/**
@@ -250,7 +244,7 @@ namespace config {
 //				printf("FUNCTION: %s\n", f);
 				if (strcmp(f, "include") == 0) {
 					if (!func->used()) {
-						func->used(1);
+						func->used(1, 1);
 						doInclude(func);
 					}
 					std::free(f);
@@ -258,7 +252,7 @@ namespace config {
 				}
 				if (strcmp(f, "include.d") == 0) {
 					if (!func->used()) {
-						func->used(1);
+						func->used(1, 1);
 						doIncludeDir(func);
 					}
 					std::free(f);
@@ -291,7 +285,9 @@ namespace config {
 					dir = driver->getBaseDir() + "/"+dir;
 				}
 				cout << "Argument (dir): " << dir << endl;
-				if (getdir(dir, filer, true)) {
+				if (int err_code = getdir(dir, filer, true)) {
+					string err(strerror(err_code));
+					v->error(err, err_code);
 					success = false;
 				}
 			}
@@ -310,7 +306,7 @@ namespace config {
 		    DIR *dp;
 		    struct dirent *dirp;
 		    if((dp  = opendir(dir.c_str())) == NULL) {
-		        cout << "Error(" << errno << ") opening " << dir << endl;
+//		    	dbg(3) << "Error(" << errno << ") opening " << dir << endl;
 		        return errno;
 		    }
 
@@ -319,12 +315,12 @@ namespace config {
 				if (!with_dot_files && (entry[0] == '.')) {
 					continue;
 				}
-		        filer.push_back(add_dir ? (dir+"/"+entry) : entry);
+		        filer.push_back(add_dir ? (dir + "/" + entry) : entry);
 		    }
 		    closedir(dp);
 		    return 0;
 		}
-
+		
 
 		/**
 		* Kjør inkludering av enkeltfil
@@ -333,10 +329,20 @@ namespace config {
 			vector<GConfigScalarVal*> args = f->getArguments();
 			for(uint i = 0; i < args.size(); i++) {
 				GConfigScalarVal* v = args[i];
-				if (!v) continue;
+				if (!v) {
+					continue;
+				}
 				string file = v->getStringValue();
-				driver->queueFileForParsing(file, f->getParentNode());
-				cout << "Argument (file): " << file << endl;
+				util::FileStat stat(file);
+				if (stat.isFile()) {
+					driver->queueFileForParsing(file, f->getParentNode());
+					//dbg(1) << "Inkluderer: " << file << endl;
+					v->used(1);
+				} else {
+					stringstream ss;
+					ss << "File " << file << " not found" << endl;
+					v->error(ss.str());
+				}
 			}
 			return true;
 		}
@@ -382,15 +388,20 @@ namespace config {
 	
 	/**
 	 * Check for config-nodes not yet consumed by any modules
-	 * Brukes for å finne noder som ingen har tatt ansvar for. Disse er per deff å regne som konfigurasjonsfilfeil.
+	 * Brukes for å finne noder som ingen har tatt ansvar for.
+	 * Disse er per deff å regne som konfigurasjonsfilfeil.
+	 * Den ser også etter noder som er spesifikt merket som feil
 	 */
 	class PostCheckConfigVisitor : public GConfigNodeVisitor {
-		int errcnt;
+		int error_count;
+		int unused_count;
 		int node_count;
 	public:
-		PostCheckConfigVisitor() {
-			errcnt = 0;
-			node_count = 0;
+		PostCheckConfigVisitor() :
+			error_count(0),
+			unused_count(0),
+			node_count(0)
+		{
 		}
 
 		/**
@@ -398,19 +409,42 @@ namespace config {
 		*/
 		virtual void node(GConfigNode* node) {
 			node_count++;
+			GConfigNode* parent = node->getParentNode();
 			if (!node->used()) {
-				switch(node->getTypeId()) {
-				case GConfig::BLOCK_LIST:
-				case GConfig::STATEMENT_LIST:
+				//if (0) { //parent && !parent->used()) {
 					/**
-					 * These nodes are regularily not used by anyone, so we don't regard these as errors
-					 */
-					break;
-				default:
-					cerr << "Node: " << node->getClassName() << " - " << node->getNodeName()<< "[" << node->getTypeId() << "] Ident: " <<
-						node->getFullNodeIdent().getPathStr() << " location: " << node->getLocation() << " is unused in config" << endl;
-					errcnt++;
-				}
+					* If parent isnt used either, we don't need to notify anyone about this,
+					* as the parent will trigger a notification. It's easier
+					* to understand a notification for the outermost node that is unused.
+					*/
+				//	++unused_count;
+				//} //else {
+				
+				switch(node->getTypeId()) {
+					case GConfig::BLOCK_LIST:
+					case GConfig::STATEMENT_LIST:
+						/**
+						 * These nodes are regularily not used by anyone, so we don't regard these as errors
+						 */
+//						break;
+					default:
+						if (parent && !parent->used()) {
+							++unused_count;
+							break;
+						}
+						
+						cerr << "\nNode: " << node->getClassName() << " - " << node->getNodeName()<< "[" << node->getTypeId() << "] Ident: " <<
+							node->getFullNodeIdent().getPathStr() << " location: " << node->getLocation() << " is unused in config" << endl;
+						if (parent && !parent->used()) {
+							cerr << "\tHas parent which is unused" << endl;
+						}
+						cerr << "\t" << node->usedStr() << endl;
+						cerr << "==== " << node->getClassName() << " ====" << endl;
+						cerr << node->getRawContent() << endl;
+						cerr << "========" << endl;
+						++unused_count;
+					}
+				//}
 			}
 			node->visitChildren(this);
 		}
@@ -421,11 +455,19 @@ namespace config {
 		int getNodeCount() {
 			return node_count;
 		}
+		
+		/**
+		*
+		*/
+		int getUnusedCount() {
+			return unused_count;
+		}
+		
 		/**
 		* Antall "feil" funnet
 		*/
 		int getErrorCount() {
-			return errcnt;
+			return error_count;
 		}
 	};
 

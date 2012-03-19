@@ -9,6 +9,7 @@
 #include "../util/BlockingQueue.h"
 #include "../util/Thread.h"
 #include "../util/NameTimeInserter.h"
+#include "../config/NodeIdent.h"
 #include <vector>
 #include <map>
 
@@ -26,6 +27,8 @@ class Event {
 	* Hash-map for parametrene eventen består av
 	*/
 	map<string, string> parameters;
+
+	config::NodeIdent src_ident;
 
 public:
 	
@@ -60,6 +63,10 @@ public:
 	*/
 	bool isEmpty();
 	
+	
+	void setSrcNodeIdent(config::NodeIdent& id);
+	
+	config::NodeIdent& getSrcNodeIdent();
 };
 
 /**
@@ -81,10 +88,6 @@ public:
 */
 class EventQueue : public util::BlockingQueue<Event>, public NameTimeTaggingOutputSet {
 private:
-	/**
-	* Instans for singleton-patternet
-	*/
-//	static EventQueue* _instance;
 	
 	vector<EventHandler*> handlers;
 public:
@@ -92,28 +95,16 @@ public:
 	EventQueue();
 
 	/**
-	* Hent ut singleton-instansen av denne
-	*/
-/*	static EventQueue* instance() {
-		if (!_instance) {
-			_instance = new EventQueue();
-		}
-		return _instance;
-	}
-*/	
-	/**
 	* Navnet som vil bli eksponert som navnet på denne tråden
 	*/
-	virtual string getName() {
-		return "ThreadedEventQueue";
-	}
+	virtual string getName();
 
 	/**
 	* Legg en event i køen
 	*/
-	virtual void queue(Event* e) {
-		push(e);
-	}
+	virtual void queue(Event* e);
+	
+	virtual void queue(Event* e, config::NodeIdent& id);
 
 	/**
 	* Start hovedloopen
@@ -136,31 +127,9 @@ public:
 * Event queue which runs all handling in separate threads
 */
 class ThreadedEventQueue : public EventQueue {
-private:
-	/**
-	* Instans for singleton-patternet
-	*/
-//	static EventQueue* _instance;
-	
-//	vector<EventHandler*> handlers;
 public:
 
 	ThreadedEventQueue();
-
-	/**
-	* Hent ut singleton-instansen av denne
-	*/
-/*	static EventQueue* instance() {
-		if (!_instance) {
-			_instance = new EventQueue();
-		}
-		return _instance;
-	}*/
-
-/**
-* Registrer ny handler
-*/
-//	virtual void registerHandler(EventHandler* handler);
 
 }; // end class
 

@@ -22,9 +22,13 @@ public:
 */
 class IPCMsgModule : public DispatchModule {
 	vector<IPCMsgListener*> listeners;
-	void initializeListeners(key_t key, long type, int count, NodeIdent id);
+	void initializeListeners(key_t key, long type, int count, NodeIdent& id);
 	vector<_ListenerSpec*> specs;
 public:
+
+
+	virtual ~IPCMsgModule();
+
 	/**
 	* Navnet på modulen
 	*/

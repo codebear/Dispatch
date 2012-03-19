@@ -38,19 +38,31 @@ namespace config {
 	new_token:
 		// Read next token
 		tok = scanner()->lex(s, loc);
-		const char* string_tok = token_lookup(tok);
-		std::cout << "Token: " << (string_tok ? string_tok : "(NULL)") << " (";
+//		const char* string_tok = token_lookup(tok);
+/*		std::cout << "Token: " << (string_tok ? string_tok : "(NULL)") << " (";
 		if (loc->begin.filename) {
 			std::cout << *(loc->begin.filename) << ": ";
 		}
 		std::cout <<
 			loc->begin.line << ":" << loc->begin.column << " - " <<
 			loc->end.line << ":" << loc->end.column << ")" << std::endl;
-
-		if (tok == config_parser::token::T_WHITESPACE || tok == config_parser::token::T_COMMENT) {
+*/
+		switch(tok) {
+			case config_parser::token::T_COMMENT:
+			/**
+			* Siden vi aldri slipper comment-tokenet til parseren, 
+			* så blir string-pekeren aldri frigjort, så vi gjør det her
+			*/
+				free(s->str_val);
+			case config_parser::token::T_WHITESPACE:
+				goto new_token;
+			default:
+				0;
+		}
+/*		if (tok == config_parser::token::T_WHITESPACE || tok == config_parser::token::T_COMMENT) {
 //			std::cout << "Skipping whitespace" << std::endl;
 			goto new_token;
-		}
+		}*/
 		return tok;
 	}
 	
@@ -108,6 +120,33 @@ namespace config {
 		resetConfigTree();
 	}
 	
+	string parseDriver::getFileName() {
+		if (!files.empty()) {
+			return files.front().file;
+		}
+		return string();
+	}
+
+	string* parseDriver::getFileNamePtr() {
+		if (!files.empty()) {
+			return &(files.front().file);
+		}
+		return NULL;
+	}
+
+	string parseDriver::getBaseDir() {
+		return basedir;
+	}
+	
+
+	GConfigNode* parseDriver::getContainingNode() {
+		if (!files.empty()) {
+			return files.front().node;
+		}
+		return NULL;
+	}
+
+
 	void parseDriver::resetConfigTree() {
 		for(uint i = 0; i < blocklists.size(); i++) {
 			GConfigBlockList* block_l = blocklists[i];
@@ -175,6 +214,11 @@ namespace config {
 					cerr << "Parse failed (" << getFileName() << ")" << endl;
 					return res;
 				}
+				/**
+				* For hver nye fil vi inkluderer så scanner vi etter om denne
+				* filen inkluderer noen andre filer som må dyttes i køen for inkludering.
+				*/
+				
 				configIncludeFunctionVisitor includes(this);
 				runVisitor(&includes);
 			}
@@ -205,19 +249,35 @@ namespace config {
 			blocklists.push_back(block);
 		}
 	}
+
 	void parseDriver::postCheckConfig() {
 		PostCheckConfigVisitor vst;
 		/*for(int i = 0; i < blocklists.size(); i++) {
 			blocklists[i]->used(1);	
 		}*/
+		
+		int bad = 0;
 		runVisitor(&vst);
-		int errcnt = vst.getErrorCount();
-		cerr << "Fant " << vst.getNodeCount() << " noder i config" << endl;
-		if (errcnt) {
+		cerr << "Fant totalt " << vst.getNodeCount() << " noder i config" << endl;
+
+		if (int unused = vst.getUnusedCount()) {
+			cerr << "Fant " << unused << " ubrukte noder i config" << endl;
+			++bad;
+		}
+
+		if (int errcnt = vst.getErrorCount()) {
 			cerr << "Fant " << errcnt << " feil i config" << endl;
+			++bad;
+		}
+		
+		if (bad) {
+			cerr << "Abandoning pga. feil i konfig." << endl;
+			exit(EXIT_FAILURE);
 		} else {
 			cerr << "Config OK!" << endl;	
 		}
+		
+		exit(EXIT_SUCCESS);
 	}
 
 	void parseDriver::dump() {

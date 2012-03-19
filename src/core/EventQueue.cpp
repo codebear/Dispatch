@@ -38,26 +38,35 @@ bool Event::hasParameter(string key) {
 	return parameters.count(key) > 0;
 }
 
-EventQueue::EventQueue() : 
-	NameTimeTaggingOutputSet(cout.rdbuf(), cerr.rdbuf(), clog.rdbuf(), cerr.rdbuf()) {
+void Event::setSrcNodeIdent(config::NodeIdent& id) {
+	src_ident = id;
+}
+
+config::NodeIdent& Event::getSrcNodeIdent() {
+	return src_ident;
+}
+
+EventQueue::EventQueue() 
+//	: NameTimeTaggingOutputSet(cout.rdbuf(), cerr.rdbuf(), clog.rdbuf(), cerr.rdbuf()) 
+{
 
 }
 
 
 void EventQueue::startListener() {
-	err << "Event listener starting..." << endl;
+	err() << "Event listener starting..." << endl;
 	Event* evnt;
+	vector<EventHandler*>::iterator h_iter;
 	while(front(evnt) == 0) {
-		err << "Received event.." << endl;
+		err() << "Received event.." << endl;
 		/**
 		* Enn så lenge så handler vi bare eventen til alle handlerne. Vi får lage filtre etterhvert
 		*/
-		vector<EventHandler*>::iterator h_iter;
 		for(h_iter = handlers.begin(); h_iter != handlers.end(); h_iter++) {
 			/**
 			* Sender av gårde til handler
 			*/
-			err << "Sender ut til handler." << endl;
+			err() << "Sender ut til handler." << endl;
 			(*h_iter)->handleEvent(evnt);
 		}
 		delete evnt;
@@ -68,18 +77,20 @@ void EventQueue::startListener() {
 void EventQueue::stopListener() {
 	signal_done();
 }
-/*
-void EventQueue::run() {
-	startListener();
+
+string EventQueue::getName()
+{
+	return "ThreadedEventQueue";
 }
 
-void EventQueue::stop() {
-	signal_done();
-	this->Thread::stop();
+void EventQueue::queue(Event* e) {
+	push(e);
 }
 
-*/
-//EventQueue* EventQueue::_instance = NULL;
+void EventQueue::queue(Event* e, config::NodeIdent& id) {
+	e->setSrcNodeIdent(id);
+	push(e);
+}
 
 
 void EventQueue::registerHandler(EventHandler* handler) {
@@ -89,7 +100,6 @@ void EventQueue::registerHandler(EventHandler* handler) {
 ThreadedEventQueue::ThreadedEventQueue() {
 
 }
-//void ThreadedEventQueue::registerHandler(EventHandler* handler) {}
 
 
 } // end namespace

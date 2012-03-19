@@ -15,8 +15,9 @@ namespace module {
 namespace inotify {
 	INotifyListener::INotifyListener(DispatchModule* mod) : 
 		Thread("INotifyListener"),
-		NameTimeTaggingOutputSet(cout.rdbuf(), cerr.rdbuf(), clog.rdbuf(), cerr.rdbuf()),
-		module(mod){
+//		NameTimeTaggingOutputSet(cout.rdbuf(), cerr.rdbuf(), clog.rdbuf(), cerr.rdbuf()),
+		module(mod)
+	{
 		
 	}
 	
@@ -32,42 +33,48 @@ namespace inotify {
 		return "INotifyListener";
 	}
 	
-	bool INotifyListener::addWatch(string p) {
-		watch_paths.push_back(p);
+	bool INotifyListener::addWatch(config::NodeIdent& id, string path) {
+		watch_paths[path] = id;
 		return true;
 	}
 	
 	void INotifyListener::run() {
 		int handle = inotify_init();
 		if (handle < 0) {
-			err << "inotify_init failed: " << strerror(errno) << endl;
+			err() << "inotify_init failed: " << strerror(errno) << endl;
 			return;
 		}
-		vector<string>::iterator path;
+		map<string, config::NodeIdent>::iterator path;
+//		vector<string>::iterator path;
 		int mask = IN_MODIFY|IN_MOVED_FROM|IN_MOVED_TO|IN_DELETE|IN_CREATE|IN_DELETE_SELF|IN_ACCESS|IN_ATTRIB;
-		
-		map<int, string> watches;
+		map<int, WatchDeclaration> watches;
+//		map<int, pair<string, config::NodeIdent> > watches;
 		
 		for(path = watch_paths.begin(); path != watch_paths.end(); path++) {
-			dbg << "Legger til overvåkning av " << *path << endl;
-			int w = inotify_add_watch(handle, (*path).c_str(), mask);
+			WatchDeclaration decl;
+			decl.id = (*path).second;
+			decl.path = (*path).first;
+			
+			dbg() << "Legger til overvåkning av " << decl.path << endl;
+			int w = inotify_add_watch(handle, decl.path.c_str(), mask);
 			if (w < 0) {
-				err << "inotify_add_watch: " << (*path) << " failed" << endl;
+				err() << "inotify_add_watch: " << decl.path << " failed" << endl;
 			}
-			watches[w] = *path;
+			decl.watch_descriptor = w;
+			watches[w] = decl;
 		}
-		err << "total of " << watches.size() << "watches initialized. Starting listener" << endl;
+		
+		err() << "total of " << watches.size() << "watches initialized. Starting listener" << endl;
 		
 		while(isRunning()) {
 			readEvents(handle, watches);
 		}
 		
-		err << "listener stopping" << endl;
+		err() << "listener stopping" << endl;
 		
-		map<int, string>::iterator w_iter;
+		map<int, WatchDeclaration >::iterator w_iter;
 		for(w_iter = watches.begin(); w_iter != watches.end(); w_iter++) {
-			
-			inotify_rm_watch(handle, (*w_iter).first);
+			inotify_rm_watch(handle, (*w_iter).second.watch_descriptor);
 		}
 		
 	}
@@ -107,7 +114,7 @@ namespace inotify {
 		return names.str();
 	}
 	
-	void INotifyListener::readEvents(int fd, map<int, string> watches) {	
+	void INotifyListener::readEvents(int fd, map<int, WatchDeclaration > & watches) {
 		/**
 		* Hentet fra http://www.linuxjournal.com/article/8478?page=0,1
 		*/
@@ -121,9 +128,9 @@ namespace inotify {
 		char buf[BUF_LEN];
 		int len, i = 0;
 	
-		err << "Preparing for reading from inotify fd" << endl;
+		err() << "Preparing for reading from inotify fd" << endl;
 		len = read (fd, buf, BUF_LEN);
-		err << "Read " << len << "bytes from fd" << endl;
+		err() << "Read " << len << "bytes from fd" << endl;
 		if (len < 0) {
 	        if (errno  == EINTR) {
 				/* need to reissue system call */
@@ -134,7 +141,7 @@ namespace inotify {
 		} else if (!len) {
 			/* BUF_LEN too small? */
 		}
-		err << "looping results from read" << endl;
+		err() << "looping results from read" << endl;
 		
 		EventQueue* queue = getModule()->getEventQueue();
 		while (i < len) {
@@ -145,12 +152,12 @@ namespace inotify {
 			Event* evnt = new Event();
 
 			evnt->setParameter("events_trigged", namesForMask(event->mask));
-			evnt->setParameter("watched_path", watches[event->wd]);
+			evnt->setParameter("watched_path", watches[event->wd].path);
 			evnt->setParameter("mask", i2s(event->mask));
 			evnt->setParameter("cookie", i2s(event->cookie));
 			evnt->setParameter("len", i2s(event->len));
 			
-			out << "wd=" << event->wd
+			out() << "wd=" << event->wd
 				<< " mask=" << event->mask
 				<< " cookie=" << event->cookie
 				<< " len=" << event->len
@@ -163,16 +170,16 @@ namespace inotify {
 				
 			if (event->len) {
 				evnt->setParameter("name", string(event->name));
-				out << "name=" << event->name << endl;
+				out() << "name=" << event->name << endl;
 //				printf ("name=%s\n", event->name);
 			}
 
-			err << "Queue event" << endl;
-			queue->queue(evnt);
-			err << "Seeking " << EVENT_SIZE+event->len << "bytes into buffer for next event" << endl;
+			err() << "Queue event" << endl;
+			queue->queue(evnt, watches[event->wd].id);
+			err() << "Seeking " << EVENT_SIZE+event->len << "bytes into buffer for next event" << endl;
 			i += EVENT_SIZE + event->len;
 		} // end while
-		err << "Done looping events" << endl;
+		err() << "Done looping events" << endl;
 		
 	} // end function
 	

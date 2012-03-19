@@ -15,7 +15,7 @@ namespace inotify {
 	}
 	
 	bool INotifyModule::startup() {
-		err << "Starting up inotify listener" << endl;
+		err() << "Starting up inotify listener" << endl;
 		handler.start();
 		return handler.isRunning();
 	}
@@ -29,8 +29,10 @@ namespace inotify {
 		vector<string> paths = StringVariableHelper::getStrings(node, "watch", 1);
 		vector<string>::iterator p_iter;
 		for(p_iter = paths.begin(); p_iter != paths.end(); p_iter++) {
-			err << "Fant sti som skal overvåkes av inotify: " << *p_iter << endl;
-			handler.addWatch(*p_iter);
+			err() << "Fant sti som skal overvåkes av inotify: " << *p_iter << endl;
+			string path = *p_iter;
+			config::NodeIdent id = node->getFullNodeIdent();
+			handler.addWatch(id, path);
 		}
 		return true;
 	}

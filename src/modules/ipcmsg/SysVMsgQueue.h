@@ -41,13 +41,14 @@ class SysVMsgQueue : public MsgQueue<T> {
 			flags |= S_IWUSR; // 	Permits the creator of the message queue to write it
 			flags |= S_IRGRP; // 	Permits the group associated with the message queue to read it
 			flags |= S_IWGRP; // 	Permits the group associated with the message queue to write it
-			cout << "Finner meldingskø med key: "<< msg_key << " flags: " << flags << endl;
+//			cout << "Finner meldingskø med key: "<< msg_key << " flags: " << flags << endl;
 			msg_queue_id = msgget(msg_key, flags);
 			if (msg_queue_id == -1) {
 				cerr << "msgget failed" << strerror(errno) << endl;
-			} else {
-				cout << "msgget returned queue_id " << msg_queue_id << endl;
 			}
+			/* else {
+				cout << "msgget returned queue_id " << msg_queue_id << endl;
+			}*/
 		}
 		return msg_queue_id;
 	}

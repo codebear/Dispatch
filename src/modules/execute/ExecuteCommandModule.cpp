@@ -36,22 +36,12 @@ bool ExecuteCommandModule::shutdown() {
 }
 
 bool ExecuteCommandModule::scanConfigNode(GConfigNode* node) {
-//		out << "PHPEmbedModule:: Fikk en configNode: " << node << endl;
-/*
-		PHPEventHandler* handler = new PHPEventHandler(node);
-		if (handler->isValid()) {
-			handlers.push_back(handler);
-			getEventQueue()->registerHandler(handler);
-			return true;
-		}
-		delete handler;
-*/
 
 	string cmd = StringVariableHelper::getString(node, "command", 1, true);
 	
 	string event_passing = StringVariableHelper::getString(node, "event_passing", 1, true);
 	
-	cout <<
+	out() <<
 		"ExecuteCommandModule: " <<
 		" command: " << cmd << 
 		" event_passing: " << event_passing <<
@@ -60,13 +50,6 @@ bool ExecuteCommandModule::scanConfigNode(GConfigNode* node) {
 	ExecuteCommandSpec spec(cmd, event_passing);
 	commands.push_back(spec);
 		
-/*
-	string metode = StringVariableHelper::getString(config, "handler_method", 1, true);
-
-	string funksjon = StringVariableHelper::getString(config, "handler_function", 1, true);
-
-	cout << "ExecuteCommandModule: Bedt om å scan en config-node:" << node << endl;
-	*/
 	return true;
 }
 

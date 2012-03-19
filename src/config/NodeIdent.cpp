@@ -19,6 +19,10 @@ NodeIdent::NodeIdent(string i) {
 	boost::split(path, i, boost::is_any_of("."));
 }
 
+NodeIdent::NodeIdent(vector<string> v) {
+	path = v;
+}
+
 string NodeIdent::getPathStr(const string sep) const {
 		uint c = 0;
 		stringstream res;
@@ -33,6 +37,12 @@ string NodeIdent::getPathStr(const string sep) const {
 	
 string NodeIdent::getPathStr() const {
 	return getPathStr(".");
+}
+
+NodeIdent NodeIdent::parent() {
+	vector<string> p = path;
+	p.pop_back();
+	return NodeIdent(p);
 }
 
 
@@ -70,7 +80,7 @@ bool NodeIdent::contains(NodeIdent& child) {
 	if (par_size > ch_size) {
 		return false;
 	}
-	for(uint i; i < par_size; i++) {
+	for(uint i = 0; i < par_size; i++) {
 		if (path[i] != child.path[i]) {
 			return false;
 		}

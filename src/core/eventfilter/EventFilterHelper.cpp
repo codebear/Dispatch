@@ -3,6 +3,7 @@
 #include "HasParamFilterRule.h"
 #include "RXParamFilterRule.h"
 #include "MatchParamFilterRule.h"
+#include "OriginFilterRule.h"
 #include "../../config/node_list.h"
 
 using namespace dispatch::config::filter;
@@ -42,6 +43,16 @@ EventFilter* EventFilterHelper::initializeEventFilter(GConfigNode* node) {
 		GConfigNode* block = f_stat->findParentByFilter(&parent_block);
 		if (block) {
 			block->used(1);
+		}
+	}
+	if (1) {
+		NodeIdent id = node->getFullNodeIdent();
+		ev_filter->addRule(new OriginFilterRule(id));
+		++cnt;
+		if (cnt) {
+			/**
+			
+			*/
 		}
 	}
 	cout << "Ferdig å leit etter filter... fant " << cnt << " stykk" << endl;

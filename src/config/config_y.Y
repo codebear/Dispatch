@@ -138,7 +138,7 @@ using namespace ::dispatch::config;
 %initial-action {
 // start
 	// void
- @$.begin.filename = @$.end.filename = new string(driver.getFileName());
+ @$.begin.filename = @$.end.filename = driver.getFileNamePtr(); //new string(driver.getFileName());
 /* @$.begin.line = @$.end.line = 0;
  @$.begin.column = @$.end.column = 0;
 */

@@ -29,6 +29,13 @@ bool IPCMsgModule::isEventHandler() {
 	return false;
 }
 
+IPCMsgModule::~IPCMsgModule() {
+	vector<IPCMsgListener*>::iterator l_it;
+	for(l_it = listeners.begin(); l_it != listeners.end(); l_it++) {
+		delete (*l_it);
+	}
+}
+
 
 bool IPCMsgModule::shutdown() {
 	vector<IPCMsgListener*>::iterator l_it;
@@ -44,7 +51,7 @@ bool IPCMsgModule::startup() {
 	vector<IPCMsgListener*>::iterator l_it;
 	bool retval = false;
 	for(l_it = listeners.begin(); l_it != listeners.end(); l_it++) {
-		out << "Starter opp ipc-lytter " << endl;
+		out() << "Starter opp ipc-lytter " << endl;
 		(*l_it)->start();
 		retval = true;
 	}
@@ -69,7 +76,7 @@ bool IPCMsgModule::scanConfigNode(GConfigNode* node) {
 	if (count_str.length()) {
 		count = string_conv<int>(count_str);
 		if (count < 1) {
-			err << "Thread count was less than 1, setting it to 1" << endl;
+			err() << "Thread count was less than 1, setting it to 1" << endl;
 			count = 1;
 		}
 	}
@@ -79,7 +86,7 @@ bool IPCMsgModule::scanConfigNode(GConfigNode* node) {
 	for(key_it = keys.begin(); key_it != keys.end(); key_it++) {
 		int key = string_conv<int>(*key_it);
 		if (!key) {
-			err << "Key " << *key_it << " is illegal" << endl;
+			err() << "Key " << *key_it << " is illegal" << endl;
 			continue;
 		}
 		
@@ -91,7 +98,7 @@ bool IPCMsgModule::scanConfigNode(GConfigNode* node) {
 //					initializeListeners(key, type, count);
 					retval = true;
 				} else {
-					err << "Type " << *type_it << " is illegal" << endl;
+					err() << "Type " << *type_it << " is illegal" << endl;
 				}
 				
 			}
@@ -105,13 +112,20 @@ bool IPCMsgModule::scanConfigNode(GConfigNode* node) {
 }
 
 
-void IPCMsgModule::initializeListeners(key_t key, long type, int count, NodeIdent ident) {
-	out << "Initaliserer " << count << " ipc-lyttere med key " << key << " og type " << type << endl;
+void IPCMsgModule::initializeListeners(key_t key, long type, int count, NodeIdent& ident) {
+	out() << "Initaliserer " << count << " ipc-lyttere med key " << key << " og type " << type << endl;
 	for(int i = 0; i < count; i++) {
 		if (type) {
-			listeners.push_back(new IPCMsgListener(ident, new SysVMsgQueue<IPCMsg>(key), getEventQueue()));
+			listeners.push_back(new IPCMsgListener(
+				new StreamEventQueueProvidingHandler(this, ident), 
+				new SysVMsgQueue<IPCMsg>(key)
+			));
 		} else {
-			listeners.push_back(new IPCMsgListener(ident, new SysVMsgQueue<IPCMsg>(key), getEventQueue(), type));		
+			listeners.push_back(new IPCMsgListener(
+				new StreamEventQueueProvidingHandler(this, ident), 
+				new SysVMsgQueue<IPCMsg>(key), 
+				type
+			));		
 		}
 	}
 }

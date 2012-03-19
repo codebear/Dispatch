@@ -17,6 +17,7 @@ using namespace dispatch::config;
 
 namespace dispatch { namespace core {
 
+/*
 	StreamEventListener::StreamEventListener() : 
 		NameTimeTaggingOutputSet(cout.rdbuf(), cerr.rdbuf(), clog.rdbuf(), cerr.rdbuf()) 
 	{
@@ -29,33 +30,19 @@ namespace dispatch { namespace core {
 	{
 		handler = new StreamEventHandler();	
 	}
-	
-	StreamEventListener::StreamEventListener(string name, EventQueue* queue) : 
-		Thread(name),
-		NameTimeTaggingOutputSet(cout.rdbuf(), cerr.rdbuf(), clog.rdbuf(), cerr.rdbuf()) 
+*/	
+	StreamEventListener::StreamEventListener(string name, StreamEventHandler* h) : 
+		Thread(name)
 	{
-		handler = new StreamEventHandler(queue);	
+		handler = h;
 	}
 	
-	StreamEventListener::StreamEventListener(string name, EventQueue* queue, NodeIdent& id) :
-		Thread(name),
-		NameTimeTaggingOutputSet(cout.rdbuf(), cerr.rdbuf(), clog.rdbuf(), cerr.rdbuf())
-	{
-		handler = new StreamEventHandler(queue, id);
-	}
-		
 	
-	StreamEventListener::StreamEventListener(EventQueue* queue) : 
-		NameTimeTaggingOutputSet(cout.rdbuf(), cerr.rdbuf(), clog.rdbuf(), cerr.rdbuf()) 
+	StreamEventListener::StreamEventListener(StreamEventHandler* h) 
 	{
-		handler = new StreamEventHandler(queue);	
+		handler = h;
 	}
 	
-	StreamEventListener::StreamEventListener(EventQueue* queue, NodeIdent id)
-	{
-		handler = new StreamEventHandler(queue, id);
-	}
-
 	StreamEventListener::~StreamEventListener() {
 		delete handler;
 	}
@@ -63,15 +50,15 @@ namespace dispatch { namespace core {
     void StreamEventListener::run() {
     	while(isRunning()) {
     		if (!validStream()) {
-				err << "Reopening stream" << endl;
+				err() << "Reopening stream" << endl;
     			openStream();
     		}
     		if (validStream()) {
-				err << "Pulling events from stream" << endl;
+				err() << "Pulling events from stream" << endl;
     			pullEvents();
 //    			cout << "Socket ended..." << endl;
     		} else {
-    			err << "Invalid stream. Waiting Œ while" << endl;
+    			err() << "Invalid stream. Waiting Œ while" << endl;
     			Thread::sleep(500);
     		}
     	}

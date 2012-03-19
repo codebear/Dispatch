@@ -15,6 +15,14 @@ namespace dispatch {
 namespace module {
 namespace inet {
 
+class InetEventSourceEntry {
+public: 
+	vector<string> ports;
+	vector<string> hosts;
+	NodeIdent id;
+	bool initialized;
+};
+
 /**
 * Modul som kan lese eventer fra en inet-socket
 */
@@ -24,6 +32,7 @@ class InetEventSourceModule : public DispatchModule {
 	*/
    	vector<InetStreamListener*> inet_listeners;
    	
+   	vector<InetEventSourceEntry> config_entries;
 
 public:
 	InetEventSourceModule();
@@ -68,6 +77,10 @@ public:
 	*/
 	virtual bool preInitialize();
 
+	/**
+	* Initialiser en og en
+	*/
+	bool initializeEntry(InetEventSourceEntry& e);
 	/**
 	* Kickstart igang
 	*/

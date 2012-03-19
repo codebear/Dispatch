@@ -43,7 +43,7 @@ public:
    */
   BlockingQueue(unsigned int maxsize = 0);
 
-  ~BlockingQueue();
+  virtual ~BlockingQueue();
 
   /**
   * Return 0 for success, ETIMEDOUT for a time-out, or -1 for other error. 

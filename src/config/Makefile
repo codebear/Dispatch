@@ -2,27 +2,27 @@
 #
 #
 CC:=g++
-CCFLAGS:=-Wall -ggdb
+CFLAGS:=-Wall -ggdb -fPIC
 
 LEXER:=lex.yy.cc
 LEXER_PRE:=lex.yy.ii
 #
 # Alle objektfilene som skal kompileres i denne katalogen
 #
-all: config.o driver.o config_nodes.o config_y.tab.o node_list.o node_base.o NodeIdent.o lexer
+all: config.o driver.o config_nodes.o config_y.tab.o node_list.o node_base.o NodeIdent.o 
 
 
 #
 # Regel som matcher alle objectfiler, og som sier at hver objektfil skal bestå av alle .C og .cc filer med samme navn
 #
 %.o: %.C 
-	$(CC) $(CCFLAGS) -g -c -o $@ $<
+	$(CC) $(CFLAGS) -g -c -o $@ $<
 
 %.o: %.cc
-	$(CC) $(CCFLAGS) -g -c -o $@ $<
+	$(CC) $(CFLAGS) -g -c -o $@ $<
 
 %.o: %.cpp
-	$(CC) $(CCFLAGS) -g -c -o $@ $<
+	$(CC) $(CFLAGS) -g -c -o $@ $<
 
 #
 # Dependecier videre dersom tilhørende header-filene er endret
@@ -47,16 +47,16 @@ config_y.tab.C: config_y.Y
 	cp position.hh.patched position.hh
 
 lex.yy.ii: lex.yy.cc
-	$(CC) $(CCFLAGS) -g -c -E -o $@ $<
+	$(CC) $(CFLAGS) -g -c -E -o $@ $<
 
 
-lexer: $(LEXER_PRE) lex.yy.o
+lexer: lex.yy.ii lex.yy.o
 
 #
 # Av lex-fila skal det genereres kildekode med flex
 #
 
-$(LEXER): config_l.l
+lex.yy.cc: config_l.l
 	flex -d -+ --header-file=config_l.h config_l.l
 
 

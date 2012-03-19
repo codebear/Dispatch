@@ -49,34 +49,20 @@ void Tokenize(const string& str,
     }
 }
 
-
 StreamEventHandler::StreamEventHandler() :
-	queue(NULL),
 	working_event(NULL)
 {
-}
-
-StreamEventHandler::StreamEventHandler(EventQueue* ev) : 
-	queue(ev),
-	working_event(NULL) {
 
 }
 
-StreamEventHandler::StreamEventHandler(EventQueue* ev, config::NodeIdent& id) :
-	queue(ev),
+StreamEventHandler::StreamEventHandler(config::NodeIdent& id) :
 	working_event(NULL),
 	base_ident(id)
 {
-	
+
 }
 
-void StreamEventHandler::setEventQueue(EventQueue* e) {
-	queue = e;
-}
 
-EventQueue* StreamEventHandler::getEventQueue() {
-	return queue;
-}
 
 void StreamEventHandler::handleStreamChunk(string chunk, bool complete) {
 	stringstream bygger;
@@ -113,7 +99,7 @@ void StreamEventHandler::handleStreamChunk(string chunk, bool complete) {
 			line = buf;
 			buf = "";
 		}
-		cout << "HAndler line: " << line << endl;
+//		cout << "HAndler line: " << line << endl;
 		handleStreamLine(line);
 		
 	} while(buf.length());
@@ -147,7 +133,7 @@ void StreamEventHandler::handleCompleteEvent(string event) {
 }
 
 void StreamEventHandler::handleStreamLine(string line, bool complete) {
-	string::iterator it = line.end();
+//	string::iterator it = line.end();
 	size_t last_sensible = line.find_last_not_of("\r\n");
 	if (last_sensible != string::npos) {
 		line = line.substr(0, last_sensible+1);
@@ -158,13 +144,13 @@ void StreamEventHandler::handleStreamLine(string line, bool complete) {
 		*/
 		line = "";
 	}
-	cerr << "line " << line.length()<<" [" << line << "]" << endl;
+//	cerr << "line " << line.length()<<" [" << line << "]" << endl;
 	if (!line.length()) {
 		/**
     	* If event is not empty, then we're done with it, so ship it off
 	 	*/
 		if (working_event && !working_event->isEmpty()) {
-   			getEventQueue()->queue(working_event);
+   			getEventQueue()->queue(working_event, base_ident);
    			/**
    			* Allocate new event for next round
    			*/
@@ -190,7 +176,7 @@ void StreamEventHandler::handleStreamLine(string line, bool complete) {
 		/**
     	* Linja e rett formatert
 		*/
-		cout << "Setter parametre [" << line_parts[0] << "]:[" << line_parts[1] << "]" <<endl;
+//		cout << "Setter parametre [" << line_parts[0] << "]:[" << line_parts[1] << "]" <<endl;
 		string key = string_trim(line_parts[0]);
 		string value = string_trim(line_parts[1]);
 		working_event->setParameter(key, value);
@@ -203,10 +189,55 @@ void StreamEventHandler::handleStreamLine(string line, bool complete) {
 	
 	if (complete) {
 		if (!working_event->isEmpty()) {
-			getEventQueue()->queue(working_event);
+			getEventQueue()->queue(working_event, base_ident);
 		}
 		working_event = NULL;
 	}
 }
+
+StreamEventQueueProvidingHandler::StreamEventQueueProvidingHandler(QueueProvider* qp) :
+	queue_provider(qp)
+{
+
+}
+
+StreamEventQueueProvidingHandler::StreamEventQueueProvidingHandler(QueueProvider* qp, config::NodeIdent& id) :
+	StreamEventHandler(id),
+	queue_provider(qp)
+{
+
+}
+
+EventQueue* StreamEventQueueProvidingHandler::getEventQueue() {
+	return queue_provider->getEventQueue();
+}
+
+/**
+* Tilpassing for dersom man har kø allerede
+*/
+StreamEventQueueHandler::StreamEventQueueHandler(EventQueue* ev) : 
+	queue(ev)
+{
+
+}
+
+StreamEventQueueHandler::StreamEventQueueHandler(EventQueue* ev, config::NodeIdent& id) :
+	StreamEventHandler(id),
+	queue(ev)
+{
+	
+}
+
+void StreamEventQueueHandler::setEventQueue(EventQueue* e) {
+	/**
+	* @TODO throw on empty e
+	*/
+	queue = e;
+}
+
+EventQueue* StreamEventQueueHandler::getEventQueue() {
+	return queue;
+}
+
 
 }} // end namespace

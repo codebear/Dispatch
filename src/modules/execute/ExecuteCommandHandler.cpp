@@ -23,8 +23,9 @@ ExecuteCommandSpec::ExecuteCommandSpec(string c, event_pass_t ep) {
 }
 
 
-ExecuteCommandHandler::ExecuteCommandHandler(ExecuteCommandSpec spec) {
-
+ExecuteCommandHandler::ExecuteCommandHandler(ExecuteCommandSpec spec) :
+	command_spec(spec)
+{
 }
 
 }}} // end namespace dispatch.module.execute

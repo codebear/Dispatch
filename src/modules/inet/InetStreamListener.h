@@ -32,21 +32,25 @@ class InetStreamListener : public StreamEventListener {
 	string inet_port;
 	
 	vector<int> sockets;
-	DispatchModule* module;
+//	DispatchModule* module;
 	FDMonitor::type* monitor;
 	vector<InetStreamConnection*> connections;
+//	vector<int> listeners;
+	friend class InetStreamConnection;
 public:
-	InetStreamListener();
+//	InetStreamListener();
 
 	/**
 	* Instansier en inet-listener med en kilde-module peker, og adresse og port den skal lytte på
 	*/
-	InetStreamListener(DispatchModule* mod, string addr, int port);
+//	InetStreamListener(DispatchModule* mod, string addr, int port);
+	InetStreamListener(StreamEventHandler*, string addr, int port);
 
 	/**
 	* Instansier en inet-listener med en kilde-module peker, og adresse og port den skal lytte på
 	*/
-	InetStreamListener(DispatchModule* mod, string addr, string port);
+//	InetStreamListener(DispatchModule* mod, string addr, string port);
+	InetStreamListener(StreamEventHandler*, string addr, string port);
 	
 	virtual ~InetStreamListener();
 	
@@ -99,7 +103,7 @@ public:
 	/**
 	* Hent ut event-queue
 	*/
-	EventQueue* getEventQueue();
+//	virtual EventQueue* getEventQueue();
 };
 
 }}}

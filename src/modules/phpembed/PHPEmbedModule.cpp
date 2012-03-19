@@ -41,7 +41,7 @@ namespace phpembed {
 	
 	bool PHPEmbedModule::scanConfigNode(GConfigNode* node) {
 //		out << "PHPEmbedModule:: Fikk en configNode: " << node << endl;
-		PHPEventHandler* handler = new PHPEventHandler(node);
+		PHPEventHandler* handler = new PHPEventHandler(this, node);
 		if (handler->isValid()) {
 			handlers.push_back(handler);
 //			getEventQueue()->registerHandler(handler);

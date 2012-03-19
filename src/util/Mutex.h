@@ -13,6 +13,7 @@ namespace dispatch { namespace util {
 class Mutex {
 	pthread_mutex_t	lock_handle;
 	
+	bool _locked;
 public:
 	Mutex();
 	~Mutex();
@@ -30,6 +31,11 @@ public:
 	* Lås opp
 	*/
 	bool unlock();
+	
+	/**
+	* LÃ¥st?
+	*/
+	bool locked();
 	
 	pthread_mutex_t* getHandle();
 };

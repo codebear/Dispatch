@@ -12,16 +12,19 @@ using namespace dispatch::util;
 namespace dispatch {
 namespace module {
 namespace fifo {
-FifoStreamListener::FifoStreamListener(NodeIdent id) {
-	base_ident = id;
+FifoStreamListener::FifoStreamListener(string f, StreamEventHandler* h, NodeIdent& id) :
+	StreamEventListener(h),
+	fifo(f),
+	base_ident(id)
+{
 }
-FifoStreamListener::FifoStreamListener(NodeIdent* id) {
+/*FifoStreamListener::FifoStreamListener(NodeIdent* id) {
 	base_ident = *id;
 }
-
 FifoStreamListener::FifoStreamListener(string fifo_f) : fifo(fifo_f) {
 
 }
+*/
 
 FifoStreamListener::~FifoStreamListener() {
 	if (pipe.is_open()) {
@@ -31,13 +34,13 @@ FifoStreamListener::~FifoStreamListener() {
 
     bool FifoStreamListener::initStream() {
     	if (!fifo.length()) {
-    		err << "Mangler fifo" << endl;
+    		err() << "Mangler fifo" << endl;
 			return false;
     	}
 
-    	err << "Opening fifo : " << fifo << endl;
+    	err() << "Opening fifo : " << fifo << endl;
     	pipe.open(fifo.c_str(), ios::in);
-    	err << "Opened." << endl;
+    	err() << "Opened." << endl;
     	return pipe.is_open();
     }
 
@@ -47,9 +50,9 @@ FifoStreamListener::~FifoStreamListener() {
     }
 
     void FifoStreamListener::openStream() {
-    	err << "Attempting to open " << fifo << endl;
+    	err() << "Attempting to open " << fifo << endl;
     	pipe.open(fifo.c_str(), ios::in);
-    	err << "Done." << endl;
+    	err() << "Done." << endl;
     }
 
     bool FifoStreamListener::validStream() {

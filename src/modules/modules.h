@@ -5,6 +5,7 @@
 #include "../config/driver.h"
 #include "../config/config_nodes.h"
 #include "../config/node_list.h"
+#include "../util/Singleton.h"
 #include <vector>
 using namespace std;
 using namespace dispatch::config;
@@ -21,6 +22,10 @@ namespace module {
 	*/
 	class ModuleEntry {
 	public:
+		/**
+		* DL-handle som returnert fra dlopen
+		*/
+		void* handle;
 		/**
 		* Peker til instans av modulen
 		*/
@@ -57,9 +62,9 @@ namespace module {
 	/**
 	* Støtteklasse som tar seg av det med lasting av moduler via shared-objekt-filer
 	*/
-	class ModuleManager : public NameTimeTaggingOutputSet {
+	class _ModuleManagerImpl : public NameTimeTaggingOutputSet {
 	public:
-		ModuleManager();
+		_ModuleManagerImpl();
 		
 		/**
 		* Navn for output-set
@@ -73,7 +78,7 @@ namespace module {
 		/**
 		* Load s module from file and insert into module-vector
 		*/
-		void loadModule(string filename, vector<ModuleEntry> &modules);
+		bool loadModule(string filename, vector<ModuleEntry> &modules);
 		
 		/**
 		* Overfør konfigurasjon til moduler
@@ -85,7 +90,14 @@ namespace module {
 		*/
 		void loadConfigNodesIntoModule(parseDriver &drv, DispatchModule* module, filter::NodeFilter* filter);
 
+		/**
+		* Unload shared object-file loaded
+		*/
+		void unloadModule(ModuleEntry& mod);
+
 	};
+	
+	typedef Singleton<_ModuleManagerImpl> ModuleManager;
 }} // end namespace
 
 #endif

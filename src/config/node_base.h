@@ -7,7 +7,7 @@
 #include "node_list.h"
 #include "location.hh"
 #include "NodeIdent.h"
-
+#include "../util/NameTimeInserter.h"
 
 using namespace std;
 
@@ -165,12 +165,17 @@ protected:
 	*/
 	location config_loc;
 	
+	/**
+	* Egen kopi av filnavnet til lokasjonen
+	*/
+	string filename;
+	
 public:
 
 	/**
 	* Initialiser med subklassenavnet
 	*/
-	GConfigNode(const char* classname);	
+	GConfigNode(const char* classname);
 	
 	/**
 	* Initialiser med klassenavn og location fra kildefil
@@ -261,6 +266,19 @@ public:
 	int _mark() {
 		return __mark;
 	}
+	
+	void error(string msg, int code = 1) {
+		_error_msg = msg;
+		_error = code;
+	}
+	
+	string getErrorMsg() {
+		return _error_msg;
+	}
+	
+	int getError() {
+		return _error;
+	}
 
 
 	/**
@@ -272,12 +290,39 @@ public:
 	* Hjelpemetode for debugging, Skriv noden til en strøm
 	*/
 	virtual std::ostream& operator<<(std::ostream& os)=0;
-	
+
 	/**
 	* Marker noden som brukt
 	*/
-	virtual int used(int used = 0) {
-		return _used += used;
+	virtual int used(int used = 0, bool recurse = 0) {
+		if (used) {
+			std::cerr << _classname << ": Node blir merket som brukt(" << used << "), res:" << _used+used << std::endl;
+			_used += used;
+		}
+		return _used;
+	}
+	
+	virtual string usedStr() {
+		stringstream ss;
+		if (parent) {
+			ss << parent->usedStr() << "->";
+//			res = parent->usedStr() + "->"
+		}
+		ss << getClassName() << "[" << this->used() << "]";
+		return ss.str();
+	}
+	
+	virtual string getRawContent(int level=0) = 0;
+	
+	string _indent(int level) {
+		if (level < 0) {
+			return string();
+		}
+		stringstream ss;
+		while(level --> 0) {
+			ss << " ";
+		}
+		return ss.str();
 	}
 
 	/**
@@ -324,9 +369,13 @@ public:
 * alle nodene i en autoreleasepool. Deretter kan vi mark-and sweepe de som er gyldige når parseren er ferdig, resten frigjør vi.
 * Denne kan i prinsippet også brukes dersom man skal lese inn ny konfigurasjon, og vil bli kvitt den gamle fra minnet.
 */
-class GConfigAutoreleasePool {
+class GConfigAutoreleasePool : public util::NameTimeTaggingOutputSet {
 	static GConfigAutoreleasePool* instance;
 	int last_iteration;
+	
+	string getName() {
+		return "GConfigAutoreleasePool";
+	}
 
 	list<GConfigNode*> pool;
 	
@@ -347,7 +396,7 @@ class GConfigAutoreleasePool {
 			/**
 			* Remove from pool
 			*/
-			std::cout << "Autoreleasing node" << std::endl;
+			dbg(4) << "Autoreleasing node" << std::endl;
 			pool.erase(curr);
 			cnt++;
 			/**
@@ -355,7 +404,7 @@ class GConfigAutoreleasePool {
 			*/
 //			ptr = pool.begin();
 		}
-		std::cerr << "After autoreleasing " << cnt << " nodes there are " << pool.size() << " elements left" << endl;
+		dbg(1) << "After autoreleasing " << cnt << " nodes there are " << pool.size() << " elements left" << endl;
 	}
 
 public:

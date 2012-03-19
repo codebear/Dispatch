@@ -4,13 +4,25 @@
 
 namespace dispatch { namespace module { namespace inet {
 
-InetStreamConnection::InetStreamConnection(InetStreamListener* l, FDMonitor::type* mon) :
+InetStreamConnection::InetStreamConnection(InetStreamListener* l) : //, FDMonitor::type* mon) :
 	listener(l),
-	monitor(mon),
-	handler(l->getEventQueue()),
+	monitor(0),
+//	handler(l->getEventQueue()),
 	remote_len(0)
 {
 }
+
+void InetStreamConnection::attach(FDMonitor::type* monitor) {
+		/**
+		* Register the file-descriptor with global fd-monitor with callback method for handling of fd-events
+		*/
+		monitor->registerFD(
+			socket, 
+			POLLIN, 
+			new TSpecificFunctor<InetStreamConnection, FDMonitorEvent*>(this, &InetStreamConnection::handleSocketEvent)
+		);
+}
+
 
 void InetStreamConnection::handleSocketEvent(FDMonitorEvent* evnt) {
 	string en = FDEvent::getEventNames(evnt->event);
@@ -42,7 +54,7 @@ void InetStreamConnection::readFromSocket() {
 			string msg = msg_buf.str();
 			if (msg.length()) {
 //				cout << "Handterer chunk[" << msg.length() << ": [" << msg << endl;
-				handler.handleStreamChunk(msg);
+				listener->handler->handleStreamChunk(msg);
 			}
 		}
 	} while(size > 0);
@@ -56,7 +68,9 @@ void InetStreamConnection::readFromSocket() {
 }
 
 void InetStreamConnection::disconnected() {
-	monitor->unregisterFD(socket);
+	if (monitor) {
+		monitor->unregisterFD(socket);
+	}
 }
 
 }}} // end namespace

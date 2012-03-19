@@ -20,26 +20,28 @@ using namespace dispatch::config;
 
 namespace dispatch {
 namespace core {
+
 /**
 * Basisklasse for event-listenere som leser fra en istream
 */
-class StreamEventListener : public Thread, public NameTimeTaggingOutputSet {
+
+
+class StreamEventListener : 
+		public Thread, public NameTimeTaggingOutputSet 
+{
+protected:
 	StreamEventHandler* handler;
 public:
-	StreamEventListener();
+//	StreamEventListener();
 	/**
 	* Instansier med et tråd-navn
 	*/
-	StreamEventListener(string name);
+//	StreamEventListener(string name);
 	
-	StreamEventListener(string name, EventQueue* q);
+	StreamEventListener(string name, StreamEventHandler*);
 	
-	StreamEventListener(string name, EventQueue* q, NodeIdent& id);
+	StreamEventListener(StreamEventHandler*);
 		
-	StreamEventListener(EventQueue* q);
-	
-	StreamEventListener(EventQueue* q, NodeIdent id);
-	
 	virtual ~StreamEventListener();
 
 	/**

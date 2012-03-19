@@ -109,6 +109,7 @@ private:
 	bool doIteration();
 public:
 	_FDMonitor_impl();
+	~_FDMonitor_impl();
 	
 	/**
 	* Registrer en file-descriptor for eventtilbakemeldinger

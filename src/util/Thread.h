@@ -12,42 +12,72 @@
 #include <pthread.h>
 #include <string>
 #include <map>
+#include <vector>
 //#include "Mutex.h"
 
 using namespace std;
-namespace dispatch {namespace util {
+namespace dispatch { namespace util {
 
 
 class Thread;
 
-class Mutex;
+//class Mutex;
+
+/**
+* Denne er selv-låsende/opplåsende. Dersom man benytter aquire/release, så må benytte det fullt ut. Da kobles automatikken ut.
+* Det er nyttig dersom man skal gjøre ting bare dersom man vet man får gå i ventemodus, samt etter at man vet at man har blitt
+* vekket, men før noen andre slipper til.
+*/
 
 class ThreadCondition {
 	Thread* thread;
 	pthread_cond_t condition;
-	bool _inited;
+	bool _aquired;
 	void inline init();
-	Mutex* mutex;
+	pthread_mutex_t mutex;
+//	Mutex* mutex;
+
 public:
 	ThreadCondition(Thread* t);
-	
+
 	virtual ~ThreadCondition();
-	
-	int sleepUntil();
-	
-	int sleepUntil(Mutex* m);
-	
+
+	/**
+	* Wait for condition
+	*/ 
+	long waitFor();
+
+	/**
+	* Wait for condition, at most usleep microseconds
+	*/
+	long waitFor(long usleep);
+
 	int wakeOne();
-	
+
 	int wakeAll();
 	
+	/**
+	* Lås på forhånd før venting
+	*/
+	bool aquire();
+	
+	/**
+	* Lås opp manuelt etter utført jobb. Må brukes hvis aquire er brukt.
+	*/
+	bool release();
 
 };
 
+/*
+class _ThreadState {
+	Thread* thread;
+	bool 
+};
 
+*/
 /**
 * Basisklasse for en tr�d, Abstrakt.
-* Bassert p� posix_thread-biblioteket. Fant ingen C++ wrappere for denne, s� lagde en liten en selv.
+* Bassert p� posix_thread-biblioteket. Fant ingen C++ wrappere for denne (oppdaget vel etterhvert at boost har en), s� lagde en liten en selv.
 */ 
 
 class Thread {
@@ -89,6 +119,8 @@ class Thread {
 	
 	static pthread_once_t _run_once;
 	static pthread_key_t _thread_key;
+	
+	static vector<Thread*> threads;
 
 	void globalInitialize();
 	

@@ -18,7 +18,9 @@ GConfigAutoreleasePool* GConfigAutoreleasePool::instance = NULL;
 GConfigNode::GConfigNode(const char* classname) : 
 	_classname(classname), 
 	parent(NULL),
-	_used(0) {
+	_used(0),
+	_error(0)
+{
 	GConfigAutoreleasePool::getInstance()->add(this);
 //			std::cout << "Nytt " << classname << " @ " << this << std::endl;
 }
@@ -29,7 +31,11 @@ GConfigNode::GConfigNode(const char* classname, location l) :
 	_used(0),
 	config_loc(l)
 {
-	
+	string* fname = config_loc.begin.filename;
+	if (fname) {
+		filename = *fname;
+	}
+	config_loc.begin.filename = config_loc.end.filename = &filename;
 }
 
 GConfigNode::~GConfigNode() {

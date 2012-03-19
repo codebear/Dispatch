@@ -76,6 +76,10 @@ class GConfigIdentifier	: public GConfigNode {
 		virtual int getTypeId() {
 			return GConfig::IDENTIFIER;
 		}
+		
+		virtual string getRawContent(int level) {
+			return getStringValue();
+		}
 
 		/**
 		* Returner node-ident, som er oss selv. :-)
@@ -307,6 +311,7 @@ class GConfigScalarVal : public GConfigNode {
 //					printf("BUF: [%s]\n", scalar.cval);
 					string_stream << scalar.cval;
 					res = string_stream.str();
+					
 //					if (scalar.cval) {
 //						res = scalar.cval;
 //						return std::string(scalar.cval);
@@ -318,12 +323,26 @@ class GConfigScalarVal : public GConfigNode {
 			}
 			return res;
 		}
-		
-		
-		virtual int used(int u = 0) {
-			int i = GConfigNode::used(u);
+
+		virtual string getRawContent(int level) {
+			stringstream ss;
+			switch(type) {
+				case LONG:
+				case DOUBLE:
+				case IDENTIFIER:
+					ss << getStringValue();
+					break;
+				case CHAR:
+					ss << '"' << getStringValue() << '"';
+					break;
+			}
+			return ss.str();
+		}
+
+		virtual int used(int u = 0, bool recurse = 0) {
+			int i = GConfigNode::used(u, recurse);
 			if (type == IDENTIFIER) {
-				scalar.ival->used(u);
+				scalar.ival->used(u, recurse);
 			}
 			
 			
@@ -430,14 +449,30 @@ class GConfigArgumentList : public GConfigNode {
 		/**
 		* Merk noden som brukt
 		*/ 
-	virtual int used(int u) {
-		int i = GConfigNode::used(u);
-		std::vector<GConfigScalarVal*>::iterator node_it;
-		for(node_it = arguments.begin(); node_it != arguments.end(); node_it++) {
-			(*node_it)->used(u);
+	virtual int used(int u = 0, bool recurse = 0) {
+		int i = GConfigNode::used(u, recurse);
+		if (recurse) {
+			std::vector<GConfigScalarVal*>::iterator node_it;
+			for(node_it = arguments.begin(); node_it != arguments.end(); node_it++) {
+				(*node_it)->used(u, recurse);
+			}
 		}
-		
 		return i;
+	}
+	
+	virtual string getRawContent(int level) {
+		std::vector<GConfigScalarVal*>::iterator node_it;
+		stringstream ss;
+		ss << "(\n";
+		
+		for(node_it = arguments.begin(); node_it != arguments.end(); ++node_it) {
+			if (node_it != arguments.begin()) { //!(i++)) 
+				ss << ",\n";
+			}
+			ss << _indent(level+3) << (*node_it)->getRawContent(level+4);
+		}
+		ss << "\n" << _indent(level) << ")";
+		return ss.str();
 	}
 };
 
@@ -551,15 +586,31 @@ public:
 	/**
 	* Marker denne noden som tatt i bruk
 	*/
-	virtual int used(int i) {
-		int res = GConfigNode::used(i);
+	virtual int used(int i = 0, bool recurse = 0) {
+		/**
+		* Denne sender videre recurse-argumentet.
+		* Vi tar ikke hensyn til dette her, da denne
+		* noden bør sees på som den "samme" som det
+		* denne peker på.
+		*/
+		int res = GConfigNode::used(i, recurse);
 		if (scalar_val) {
-			scalar_val->used(i);	
+			scalar_val->used(i, recurse);	
 		}
 		if (arg_list) {
-			arg_list->used(i);	
+			arg_list->used(i, recurse);	
 		}
 		return res;
+	}
+	
+	virtual string getRawContent(int level) {
+		if (scalar_val) {
+			return scalar_val->getRawContent(level);
+		}
+		if (arg_list) {
+			return arg_list->getRawContent(level);
+		}
+		return string();
 	}
 
 	/**
@@ -665,6 +716,15 @@ class GConfigBlockHeader : public GConfigNode {
 			if (_ident) {
 				delete _ident;
 			}*/
+		}
+		
+		virtual string getRawContent(int level) {
+			stringstream ss;
+			ss << _navn;
+			if (_ident) {
+				ss << " [" << _ident->getRawContent(level) << "]";
+			}
+			return ss.str();
 		}
 
 		/**
@@ -788,7 +848,7 @@ class GConfigStatementList : public GConfigNode {
 		* Debug-helper for skriving til str�m
 		*/
 		virtual ostream& operator<<(ostream& os) {
-			os << "GConfigStatementList�{" << std::endl;
+			os << "GConfigStatementList {" << std::endl;
 			for(unsigned int i = 0; i < statements.size(); i++) {
 				GConfigStatement* stmt = statements[i];
 				if (stmt) {
@@ -818,6 +878,14 @@ class GConfigStatementList : public GConfigNode {
 	//			printf("Element %d\n", i);
 				statements[i]->visit(visitor);
 			}
+		}
+		
+		virtual string getRawContent(int level) {
+			stringstream ss;
+			for(unsigned int i = 0; i < statements.size(); ++i) {
+				ss << _indent(level) << statements[i]->getRawContent(level+1) << ";\n";
+			}
+			return ss.str();
 		}
 		
 		/**
@@ -887,6 +955,17 @@ public:
 		}
 		return string();
 	}
+	
+	virtual string getRawContent(int level) {
+		stringstream ss;
+		if (_head) {
+			ss << _head->getRawContent(level);
+		}
+		ss << _indent(level) << "{\n" 
+			<< _list->getRawContent(level+1)
+			<< _indent(level) << "}";
+		return ss.str();
+	}
 
 
 		/**
@@ -907,6 +986,16 @@ public:
 	*/
 	virtual location getLocation() {
 		return _head->getLocation() + _list->getLocation();
+	}
+	
+	virtual int used(int u = 0, int recurse = 0) {
+		int i = GConfigNode::used(u, recurse);
+
+		_head->used(u, recurse);
+
+		_list->used(u, recurse);
+
+		return i;
 	}
 
 		/**
@@ -1015,6 +1104,21 @@ class GConfigBlockList : public GConfigNode {
 				blocks[i]->visit(visitor);
 			}
 		}
+		
+		virtual string getRawContent(int level) {
+			stringstream ss;
+			for(unsigned int i = 0; i << blocks.size(); ++i) {
+				ss << blocks[i]->getRawContent(level+1);
+			}
+			return ss.str();
+		}
+		
+		virtual int used(int i = 0, bool recurse = 0) {
+			if (i) {
+				GConfigNode::used(i, recurse);
+			}
+			return 1;
+		}
 
 };
 
@@ -1054,16 +1158,32 @@ public:
 	* Hent ut location til noden i konfig-fil
 	*/
 	virtual location getLocation() {
-		return fname->getLocation()+arguments->getLocation();
+		return 
+			fname->getLocation() + 
+			arguments->getLocation();
+	}
+	
+	virtual string getRawContent(int level) {
+		stringstream ss;
+		ss << fname->getRawContent(level) 
+			<< "" << arguments->getRawContent(level) << "";
+		return ss.str();
 	}
 	
 	/**
 	* Marker noden som brukt
 	*/
-	virtual int used(int u = 0) {
-		int i = GConfigStatement::used(u);
-		fname->used(u);
-		arguments->used(u);
+	virtual int used(int u = 0, bool recurse = 0) {
+		/**
+		* Denne havner i et tvilstilfelle hva angår 
+		* recursiv merking. Men enn så lenge så merker
+		* vi bare argumentlisten dersom vi har recurse slått på
+		*/
+		int i = GConfigStatement::used(u, recurse);
+		fname->used(u, recurse);
+		if (recurse) {
+			arguments->used(u, recurse);
+		}
 		return i;
 	}
 
@@ -1185,6 +1305,10 @@ public:
 			identifier->visit(visitor);
 		}
 	}
+	
+	virtual string getRawContent(int level) {
+		return identifier->getRawContent(level);
+	}
 };
 
 /**
@@ -1288,15 +1412,23 @@ class GConfigVariableStatement : public GConfigStatement {
 		/**
 		* Marker node som brukt
 		*/
-		virtual int used(int i) {
-			int res = GConfigStatement::used(i);
+		virtual int used(int i = 0, bool recurse = 0) {
+			int res = GConfigStatement::used(i, recurse);
 			if (vname) {
-				vname->used(i);
+				vname->used(i, recurse);
 			}
 			if (value) {
-				value->used(i);
+				value->used(i, recurse);
 			}
 			return res;
+		}
+		
+		virtual string getRawContent(int level) {
+			stringstream ss;
+			ss << vname->getRawContent(level) 
+				<< " = "
+				<< value->getRawContent(level);
+			return ss.str();
 		}
 		
 		/**

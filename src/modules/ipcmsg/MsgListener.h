@@ -79,16 +79,16 @@ public:
 * Meldings-kø-lytter 
 */
 class IPCMsgListener : public NameTimeTaggingOutputSet, public Thread {
-	StreamEventHandler handler;
+	StreamEventHandler* handler;
 	MsgQueue<IPCMsg>* m_queue;
-	EventQueue* e_queue;
+//	EventQueue* e_queue;
 	long type;
-	NodeIdent ident;
+//	NodeIdent ident;
 public:
 	/**
 	* Køen som skal lyttes fra, og om den skal filtere på meldingstype
 	*/
-	IPCMsgListener(NodeIdent ident, MsgQueue<IPCMsg>*m_queue, EventQueue* e_queue, long t = 0);
+	IPCMsgListener(StreamEventHandler*, MsgQueue<IPCMsg>*m_queue, long t = 0);
 	
 
 	/**

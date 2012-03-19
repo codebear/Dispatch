@@ -1,6 +1,8 @@
+* g++
 * C++ boost library
-* php5-dev
+    * libboost-regex-dev
 
+* php5-dev
 * phpembed
   Finner ikke som pakke, maa laste ned fra https://github.com/facebook/phpembed og bygge selv
 
@@ -10,3 +12,13 @@ Muligens enda
 * bison
  
   Burde bli fikste slik at disse bare trengtes dersom man skal endre paa konfigparser
+
+Kjekt å ha
+* valgrind
+* glibc-doc
+
+
+
+For bygging av PHP
+
+* libxml2-src
