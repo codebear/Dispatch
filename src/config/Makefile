@@ -9,7 +9,7 @@ LEXER_PRE:=lex.yy.ii
 #
 # Alle objektfilene som skal kompileres i denne katalogen
 #
-all: config.o driver.o config_nodes.o config_y.tab.o node_list.o node_base.o NodeIdent.o 
+all: config.o driver.o config_nodes.o config_y.tab.o node_list.o node_base.o NodeIdent.o lex.yy.o
 
 
 #
@@ -46,11 +46,13 @@ config_y.tab.C: config_y.Y
 	bison -v -l -g -d -k config_y.Y
 	cp position.hh.patched position.hh
 
-lex.yy.ii: lex.yy.cc
-	$(CC) $(CFLAGS) -g -c -E -o $@ $<
+#lex.yy.ii: lex.yy.cc
+#	$(CC) $(CFLAGS) -g -c -E -o $@ $<
 
 
-lexer: lex.yy.ii lex.yy.o
+lexer: lex.yy.o
+
+#lex.yy.ii lex.yy.o
 
 #
 # Av lex-fila skal det genereres kildekode med flex
